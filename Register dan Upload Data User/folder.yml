@@ -1,0 +1,7 @@
+info:
+  name: Register dan Upload Data User
+  type: folder
+  seq: 3
+
+request:
+  auth: inherit

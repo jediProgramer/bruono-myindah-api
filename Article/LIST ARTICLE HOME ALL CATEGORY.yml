@@ -1,0 +1,19 @@
+info:
+  name: LIST ARTICLE HOME ALL CATEGORY
+  type: http
+  seq: 5
+
+http:
+  method: GET
+  url: https://webapi.myindah-app.com/api/mobileapps/posts_home
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  # **GET POST**
+
+  Menampilkan data artikel dengan nama **POST** secara keseluruhan menggunakan method **GET**

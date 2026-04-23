@@ -1,0 +1,11 @@
+info:
+  name: Auth
+  type: folder
+  seq: 1
+
+request:
+  auth: inherit
+
+docs:
+  content: API yang digunakan dalam proses auth untuk login dan logout
+  type: text/markdown
