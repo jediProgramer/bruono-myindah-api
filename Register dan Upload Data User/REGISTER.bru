@@ -1,54 +1,45 @@
-info:
+meta {
   name: REGISTER
   type: http
   seq: 1
+}
 
-http:
-  method: POST
+post {
   url: https://webapi.myindah-app.com/api/mobileapps/register
-  headers:
-    - name: Accept
-      value: application/json
-    - name: Content-Type
-      value: application/json
-  body:
-    type: multipart-form
-    data:
-      - name: name
-        type: text
-        value: Angga Angga
-      - name: email
-        type: text
-        value: angga.amgga@upi.edu
-      - name: password
-        type: text
-        value: "12345"
-      - name: password_confirmation
-        type: text
-        value: "12345"
-      - name: role_name
-        type: text
-        value: farmer
+  body: multipartForm
+  auth: none
+}
 
-settings:
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:multipart-form {
+  name: Angga Angga
+  email: angga.amgga@upi.edu
+  password: 12345
+  password_confirmation: 12345
+  role_name: farmer
+}
+
+settings {
   encodeUrl: true
-  timeout: 0
-  followRedirects: true
-  maxRedirects: 5
+}
 
-docs: |-
+docs {
   # **POST REGISTER USER**
-
+  
   Dokumen untuk mengirimkan API register user dengan **Headers,** menggunakan method **POST**
-
+  
   | **Key** | **Value** |
   | --- | --- |
   | Accept | application/json |
   | Content-Type | application/json |
   | Authorization | Bearer **TOKEN DARI LOGIN** |
-
+  
   lalu **Body** dengan **form-data** diisi dengan
-
+  
   | **Key** | **Tipe** | **Value** |
   | --- | --- | --- |
   | name | text | _isikan nama user_ |
@@ -58,3 +49,4 @@ docs: |-
   | role_name | text | _isikan dengan peran comsumer atau farmer_ |
   | roles\[\] | text | _isikan dengan peran comsumer atau farmer_ |
   | _method | text | PATCH |
+}

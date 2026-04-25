@@ -1,19 +1,21 @@
-info:
+meta {
   name: LIST ARTICLE BY CATEGORY
   type: http
   seq: 3
+}
 
-http:
-  method: GET
+get {
   url: https://webapi.myindah-app.com/api/mobileapps/posts/3
+  body: none
+  auth: none
+}
 
-settings:
+settings {
   encodeUrl: true
-  timeout: 0
-  followRedirects: true
-  maxRedirects: 5
+}
 
-docs: |-
+docs {
   # **GET POST BY CATERGORY ID**
-
+  
   Menampilkan data artikel dengan nama **POST** secara keseluruhan menggunakan method **GET** dengan memasukan **catergory_id** setelah **post/catergory_id**
+}

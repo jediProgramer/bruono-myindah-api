@@ -1,19 +1,21 @@
-info:
+meta {
   name: LIST CATEGORY ARTICLE
   type: http
   seq: 6
+}
 
-http:
-  method: GET
+get {
   url: https://webapi.myindah-app.com/api/mobileapps/category_list
+  body: none
+  auth: none
+}
 
-settings:
+settings {
   encodeUrl: true
-  timeout: 0
-  followRedirects: true
-  maxRedirects: 5
+}
 
-docs: |-
+docs {
   # **GET CATEGORY POST**
-
+  
   Menampilkan data kategori artikel dengan nama **category_list** secara keseluruhan menggunakan method **GET**
+}

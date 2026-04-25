@@ -1,19 +1,21 @@
-info:
-  name: DETAIL ARTICLE FOR MOBILE
+meta {
+  name: DETAIL ARTICLE
   type: http
-  seq: 4
+  seq: 2
+}
 
-http:
-  method: GET
-  url: https://webapi.myindah-app.com/api/mobileapps/postsdetail/resep-gado-gado-siram-yang-isiannya-sayuran-komplet
+get {
+  url: https://webapi.myindah-app.com/api/public/posts/resep-gado-gado-siram-yang-isiannya-sayuran-komplet
+  body: none
+  auth: none
+}
 
-settings:
+settings {
   encodeUrl: true
-  timeout: 0
-  followRedirects: true
-  maxRedirects: 5
+}
 
-docs: |-
+docs {
   # **GET POST**
-
+  
   Menampilkan data artikel dengan nama **POST** secara keseluruhan menggunakan method **GET, dengan** memasukan variabel **slug** setalah **POST/** contoh **POST/StartFragmentresep-gado-gado-siram-yang-isiannya-sayuran-komplet**
+}

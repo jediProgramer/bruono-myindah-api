@@ -1,0 +1,33 @@
+meta {
+  name: LOGOUT
+  type: http
+  seq: 2
+}
+
+post {
+  url: https://webapi.myindah-app.com/api/logout
+  body: multipartForm
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+  Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3dlYmFwaS5teWluZGFoLWFwcC5jb20vYXBpL2xvZ2luIiwiaWF0IjoxNzczODQ2MjAyLCJleHAiOjE3NzM4NDk4MDIsIm5iZiI6MTc3Mzg0NjIwMiwianRpIjoiNnBVdTBuRE5sUE9HNG1sTyIsInN1YiI6IjEiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3In0.ok6S6TaLh_5-VKY7RBVSsFOWYbwCNcvdWBqLzQwJnYo
+}
+
+settings {
+  encodeUrl: true
+}
+
+docs {
+  # **POST LOGOUT**
+  
+  Dokumen untuk mengirimkan API logout dengan **Headers,** menggunakan method **POST**
+  
+  | **Key** | **Value** |
+  | --- | --- |
+  | Accept | application/json |
+  | Content-Type | application/json |
+  | Authorization | Bearer **TOKEN DARI LOGIN** |
+}

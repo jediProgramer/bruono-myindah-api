@@ -1,19 +1,21 @@
-info:
+meta {
   name: LIST ARTICLE
   type: http
   seq: 1
+}
 
-http:
-  method: GET
+get {
   url: https://webapi.myindah-app.com/api/public/posts
+  body: none
+  auth: none
+}
 
-settings:
+settings {
   encodeUrl: true
-  timeout: 0
-  followRedirects: true
-  maxRedirects: 5
+}
 
-docs: |-
+docs {
   # **GET POST**
-
+  
   Menampilkan data artikel dengan nama **POST** secara keseluruhan menggunakan method **GET**
+}

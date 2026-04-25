@@ -1,34 +1,31 @@
-info:
+meta {
   name: LOGIN
   type: http
   seq: 1
+}
 
-http:
-  method: POST
+post {
   url: https://webapi.myindah-app.com/api/login
-  body:
-    type: multipart-form
-    data:
-      - name: email
-        type: text
-        value: admin@gmail.com
-      - name: password
-        type: text
-        value: password
+  body: multipartForm
   auth: inherit
+}
 
-settings:
+body:multipart-form {
+  email: admin@gmail.com
+  password: password
+}
+
+settings {
   encodeUrl: true
-  timeout: 0
-  followRedirects: true
-  maxRedirects: 5
+}
 
-docs: |-
+docs {
   # **POST LOGIN**
-
+  
   Dokumen untuk mengirimkan API login dengan **Body** dengan **form-data,** menggunakan method **POST**
-
+  
   | Key | Value |
   | --- | --- |
   | email | _default_ [<i><b>admin@gmail.com</b></i>](https://mailto:admin@gmail.com) _atau email yang sudah terdaftar_ |
   | password | _default_ _**password**_ _atau password yang sudah terdaftar_ |
+}

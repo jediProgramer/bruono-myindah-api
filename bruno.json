@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "MyINDAH - Diet API - 1",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

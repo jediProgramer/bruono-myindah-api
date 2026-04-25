@@ -1,0 +1,60 @@
+meta {
+  name: UPDATE
+  type: http
+  seq: 2
+}
+
+post {
+  url: https://webapi.myindah-app.com/api/mobileapps/users/5
+  body: multipartForm
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+  Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3dlYmFwaS5teWluZGFoLWFwcC5jb20vYXBpL2xvZ2luIiwiaWF0IjoxNzc2ODgwNjMxLCJleHAiOjE3NzY4ODQyMzEsIm5iZiI6MTc3Njg4MDYzMSwianRpIjoiMWNwQ2JmYm1Ecm00NFVTUSIsInN1YiI6IjUiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3In0.XAvOjGWuc6-94TH8__bQaEwIH-grUr9_pPOADc2yUVE
+}
+
+body:multipart-form {
+  name: Erlangga
+  email: erlangga@upi.edu
+  password: 12345
+  password_confirmation: 12345
+  role_name: consumer
+  image: @file(/G:/Data Erlangga/Data Foto Pribadi/FOTO PROFIL ERLANGGA/JPG/198607082018031001_Erlangga_Blazzer_Black_2022.jpg)
+  role_name: consumer
+  _method: PATCH
+}
+
+settings {
+  encodeUrl: true
+}
+
+docs {
+  # **PUT UPDATE USER**
+  
+  > Tambahkan **iduser** setelah **/user/iduser** 
+    
+  
+  Dokumen untuk mengirimkan API register user dengan **Headers,** menggunakan method **POST**
+  
+  | **Key** | **Value** |
+  | --- | --- |
+  | Accept | application/json |
+  | Content-Type | application/json |
+  | Authorization | Bearer **TOKEN DARI LOGIN** |
+  
+  lalu **Body** dengan **form-data** diisi dengan
+  
+  | **Key** | **Tipe** | **Value** |
+  | --- | --- | --- |
+  | name | text | _isikan nama user_ |
+  | email | text | _isikan email_ |
+  | password | text | _isikan password_ |
+  | password_confirmation | text | _isikan ulangin password_ |
+  | role_name | text | _isikan dengan peran comsumer atau farmer_ |
+  | image | file | _isikan dengan file gambar_ |
+  | roles\[\] | text | _isikan dengan peran comsumer atau farmer_ |
+  | _method | text | PATCH |
+}
