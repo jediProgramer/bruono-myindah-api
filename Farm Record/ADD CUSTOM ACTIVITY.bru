@@ -1,0 +1,135 @@
+meta {
+  name: ADD CUSTOM ACTIVITY
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/mobileapps/farm/activities
+  body: multipartForm
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+}
+
+body:multipart-form {
+  nama: Pemupukan Jagung
+  category: Pemupukan
+  tanaman: Jagung
+  tanggal: 2026-05-22
+  catatan: Pupuk NPK 15-15-15
+}
+
+settings {
+  encodeUrl: true
+}
+
+docs {
+  Adds a one-off activity outside the padi template (e.g. for jagung, cabai). Will appear in `LIST ACTIVITIES` under `status=upcoming`.
+
+  **Body (multipart):**
+  - `nama` (string, required) — Nama kegiatan
+  - `category` (string, required) — `Pemupukan`, `Penyemprotan`, `Pengairan`, `Panen`, `Lainnya`
+  - `tanaman` (string, required) — Free text
+  - `tanggal` (date YYYY-MM-DD, required)
+  - `catatan` (string, optional)
+}
+
+example {
+  name: Add Custom Activity: Success
+
+  request: {
+    url: {{baseUrl}}/mobileapps/farm/activities
+    method: POST
+    mode: multipartForm
+    headers: {
+      Accept: application/json
+      Authorization: Bearer {{token}}
+    }
+
+    body:multipart-form: {
+      nama: Pemupukan Jagung
+      category: Pemupukan
+      tanaman: Jagung
+      tanggal: 2026-05-22
+      catatan: Pupuk NPK 15-15-15
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 201
+      text: Created
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "Activity created",
+          "data": {
+            "id": 50,
+            "nama": "Pemupukan Jagung",
+            "category": "Pemupukan",
+            "tanaman": "Jagung",
+            "tanggal": "2026-05-22",
+            "due_label": "Besok",
+            "catatan": "Pupuk NPK 15-15-15",
+            "is_template": false,
+            "status": "upcoming"
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Add Custom Activity: Validation Error
+
+  request: {
+    url: {{baseUrl}}/mobileapps/farm/activities
+    method: POST
+    mode: multipartForm
+    headers: {
+      Accept: application/json
+      Authorization: Bearer {{token}}
+    }
+
+    body:multipart-form: {
+      nama: ""
+      category: BadCat
+      tanggal: not-a-date
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 422
+      text: Unprocessable Entity
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "nama": ["The nama field is required."],
+          "category": ["The selected category is invalid."],
+          "tanaman": ["The tanaman field is required."],
+          "tanggal": ["The tanggal is not a valid date."]
+        }
+      '''
+    }
+  }
+}

@@ -1,0 +1,263 @@
+meta {
+  name: LIST RESEP
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/mobileapps/resep
+  body: none
+  auth: none
+}
+
+params:query {
+  city: jakarta
+  temp_c: 29
+  feels_like_c: ~
+  humidity_pct: ~
+  precip_mm: ~
+  cloud_cover_pct: ~
+  meal: ~
+  q: ~
+  page: 1
+  per_page: 15
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  Paginated recipe list for the Resep Sehat screen. Ordered by relevance to current weather (same bucketization as `HOME RECOMMENDATION`), then alphabetical fallback.
+
+  **Query params:**
+  - `city` (string, required) — `jakarta`, `bandung`, `yogyakarta`, `surabaya`
+  - `temp_c` (number, required) — Current temperature in Celsius
+  - `feels_like_c` `humidity_pct` `precip_mm` `cloud_cover_pct` (numbers, optional) — Same as HOME RECOMMENDATION
+  - `meal` (string, optional) — `sarapan`, `siang`, `malam`. Omit for "Semua".
+  - `q` (string, optional) — Free-text title search.
+  - `page` (int, default 1)
+  - `per_page` (int, default 15, max 50)
+
+  **Response** is a Laravel paginator (`data.data` is the rows; `data.current_page`, `data.last_page`, `data.total`, `data.per_page` for pagination meta).
+}
+
+example {
+  name: List Resep: Page 1
+
+  request: {
+    url: {{baseUrl}}/mobileapps/resep?city=jakarta&temp_c=29&page=1&per_page=15
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "List resep",
+          "data": {
+            "current_page": 1,
+            "per_page": 15,
+            "last_page": 4,
+            "total": 56,
+            "from": 1,
+            "to": 15,
+            "data": [
+              {
+                "slug": "gado-gado",
+                "title": "Gado-gado",
+                "image": "https://myindah-api.toko.center/storage/recipes/gado-gado.jpg?v=1779364630",
+                "type": "food",
+                "durasi_menit": 33,
+                "porsi": 6,
+                "kcal": 360,
+                "difficulty": "Mudah",
+                "kategori": "Warung gado-gado; kantin",
+                "meal_times": ["siang"]
+              },
+              {
+                "slug": "tumis-kangkung-terasi",
+                "title": "Tumis Kangkung Terasi",
+                "image": "https://myindah-api.toko.center/storage/recipes/tumis-kangkung-terasi.jpg?v=1779364630",
+                "type": "food",
+                "durasi_menit": 20,
+                "porsi": 4,
+                "kcal": 95,
+                "difficulty": "Mudah",
+                "kategori": "Berbasis sayur"
+              }
+            ],
+            "first_page_url": "https://myindah-api.toko.center/api/mobileapps/resep?city=jakarta&temp_c=29&per_page=15&page=1",
+            "last_page_url":  "https://myindah-api.toko.center/api/mobileapps/resep?city=jakarta&temp_c=29&per_page=15&page=4",
+            "next_page_url":  "https://myindah-api.toko.center/api/mobileapps/resep?city=jakarta&temp_c=29&per_page=15&page=2",
+            "prev_page_url":  null,
+            "path":           "https://myindah-api.toko.center/api/mobileapps/resep",
+            "links": []
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: List Resep: Filter Siang
+
+  request: {
+    url: {{baseUrl}}/mobileapps/resep?city=jakarta&temp_c=29&meal=siang&page=1
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "List resep",
+          "data": {
+            "current_page": 1,
+            "per_page": 15,
+            "last_page": 1,
+            "total": 8,
+            "data": [
+              {
+                "slug": "rujak-buah",
+                "title": "Rujak buah",
+                "image": "https://myindah-api.toko.center/storage/recipes/rujak-buah.jpg?v=1779364630",
+                "type": "food",
+                "durasi_menit": 25,
+                "porsi": 3,
+                "kcal": 180,
+                "difficulty": "Mudah",
+                "kategori": "Cemilan"
+              }
+            ]
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: List Resep: Search "gado"
+
+  request: {
+    url: {{baseUrl}}/mobileapps/resep?city=jakarta&temp_c=29&q=gado
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "List resep",
+          "data": {
+            "current_page": 1,
+            "per_page": 15,
+            "last_page": 1,
+            "total": 1,
+            "data": [
+              {
+                "slug": "gado-gado",
+                "title": "Gado-gado",
+                "image": "https://myindah-api.toko.center/storage/recipes/gado-gado.jpg?v=1779364630",
+                "type": "food",
+                "durasi_menit": 33,
+                "porsi": 6,
+                "kcal": 360,
+                "difficulty": "Mudah",
+                "kategori": "Warung gado-gado; kantin"
+              }
+            ]
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: List Resep: Empty Result
+
+  request: {
+    url: {{baseUrl}}/mobileapps/resep?city=jakarta&temp_c=29&q=xyz
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "List resep",
+          "data": {
+            "current_page": 1,
+            "per_page": 15,
+            "last_page": 1,
+            "total": 0,
+            "data": []
+          }
+        }
+      '''
+    }
+  }
+}

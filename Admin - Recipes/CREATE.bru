@@ -1,0 +1,192 @@
+meta {
+  name: CREATE
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/admin/recipes
+  body: multipartForm
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+}
+
+body:multipart-form {
+  title: Gado-Gado Sayur
+  type: food
+  kategori: Berbasis sayur
+  kcal: 320
+  durasi_menit: 35
+  porsi: 4
+  difficulty: Mudah
+  tags: sayur,tahu/tempe,bumbu kacang
+  ingredients: 200g tauge\n100g kangkung\n2 buah tahu
+  instructions: 1. Rebus sayuran\n2. Tumbuk bumbu kacang\n3. Sajikan
+  image: ~
+}
+
+settings {
+  encodeUrl: true
+}
+
+docs {
+  Multipart form. Image is optional.
+
+  **Body (multipart):**
+  - `title` (string, required)
+  - `type` (string, required) — `food` or `drink`
+  - `kategori` (string, required) — "Berbasis sayur", "Berkuah", etc
+  - `kcal` (int, optional)
+  - `durasi_menit` (int, optional)
+  - `porsi` (int, optional)
+  - `difficulty` (string, optional) — "Mudah", "Sedang", "Sulit"
+  - `tags` (string, optional) — Comma-separated
+  - `ingredients` (text, optional) — Multi-line
+  - `instructions` (text, optional) — Multi-line
+  - `image` (file, optional) — JPG/PNG, max 2MB
+}
+
+example {
+  name: Create: Success
+
+  request: {
+    url: {{baseUrl}}/admin/recipes
+    method: POST
+    mode: multipartForm
+    headers: {
+      Accept: application/json
+      Authorization: Bearer {{token}}
+    }
+
+    body:multipart-form: {
+      title: Gado-Gado Sayur
+      type: food
+      kategori: Berbasis sayur
+      kcal: 320
+      durasi_menit: 35
+      porsi: 4
+      difficulty: Mudah
+      tags: sayur,tahu/tempe,bumbu kacang
+      ingredients: 200g tauge\n100g kangkung
+      instructions: 1. Rebus sayuran\n2. Sajikan
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 201
+      text: Created
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "Recipe created",
+          "data": {
+            "id": 153,
+            "slug": "gado-gado-sayur",
+            "title": "Gado-Gado Sayur",
+            "type": "food",
+            "image_url": null,
+            "kategori": "Berbasis sayur",
+            "kcal": 320,
+            "durasi_menit": 35,
+            "porsi": 4,
+            "difficulty": "Mudah",
+            "tags": ["sayur", "tahu/tempe", "bumbu kacang"]
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Create: Validation Error
+
+  request: {
+    url: {{baseUrl}}/admin/recipes
+    method: POST
+    mode: multipartForm
+    headers: {
+      Accept: application/json
+      Authorization: Bearer {{token}}
+    }
+
+    body:multipart-form: {
+      title: ""
+      type: snack
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 422
+      text: Unprocessable Entity
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "title": ["The title field is required."],
+          "type": ["The selected type is invalid. Use 'food' or 'drink'."],
+          "kategori": ["The kategori field is required."]
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Create: Duplicate Slug
+
+  request: {
+    url: {{baseUrl}}/admin/recipes
+    method: POST
+    mode: multipartForm
+    headers: {
+      Accept: application/json
+      Authorization: Bearer {{token}}
+    }
+
+    body:multipart-form: {
+      title: Gado-Gado Sayur
+      type: food
+      kategori: Berbasis sayur
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 422
+      text: Unprocessable Entity
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "title": ["A recipe with this title already exists."]
+        }
+      '''
+    }
+  }
+}

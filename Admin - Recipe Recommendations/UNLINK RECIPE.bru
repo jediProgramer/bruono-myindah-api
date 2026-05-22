@@ -1,0 +1,99 @@
+meta {
+  name: UNLINK RECIPE
+  type: http
+  seq: 3
+}
+
+delete {
+  url: {{baseUrl}}/admin/recipes/{{recipeId}}/recommendations/{{recommendationId}}
+  body: none
+  auth: inherit
+}
+
+vars:pre-request {
+  recipeId: 1
+  recommendationId: 12
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  Removes one recommendation row.
+
+  **Path params:**
+  - `{recipeId}` (int, required)
+  - `{recommendationId}` (int, required) — from `SHOW recipe` response, `recommendations[].id`
+}
+
+example {
+  name: Unlink: Success
+
+  request: {
+    url: {{baseUrl}}/admin/recipes/1/recommendations/12
+    method: DELETE
+    mode: none
+    headers: {
+      Accept: application/json
+      Authorization: Bearer {{token}}
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "Recommendation removed",
+          "data": null
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Unlink: Not Found
+
+  request: {
+    url: {{baseUrl}}/admin/recipes/1/recommendations/9999
+    method: DELETE
+    mode: none
+    headers: {
+      Accept: application/json
+      Authorization: Bearer {{token}}
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 404
+      text: Not Found
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": false,
+          "message": "Recommendation not found"
+        }
+      '''
+    }
+  }
+}

@@ -1,0 +1,91 @@
+meta {
+  name: ACTIVITY COUNTS
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/mobileapps/farm/activities/counts
+  body: none
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  Returns the two numbers shown at the top of the Farm Record screen (e.g. "2 Mendatang" / "1 Selesai").
+}
+
+example {
+  name: Activity Counts: Success
+
+  request: {
+    url: {{baseUrl}}/mobileapps/farm/activities/counts
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+      Authorization: Bearer {{token}}
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "Activity counts",
+          "data": {
+            "upcoming": 2,
+            "done": 1
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Activity Counts: Unauthenticated
+
+  request: {
+    url: {{baseUrl}}/mobileapps/farm/activities/counts
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 401
+      text: Unauthorized
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "message": "Unauthenticated."
+        }
+      '''
+    }
+  }
+}

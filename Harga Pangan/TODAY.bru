@@ -1,0 +1,152 @@
+meta {
+  name: TODAY
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/mobileapps/harga-pangan/today
+  body: none
+  auth: none
+}
+
+params:query {
+  provinsi: ~
+  jenis_pasar: ~
+  komoditas: ~
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  Returns the latest daily snapshot scraped from PIHPS Bank Indonesia.
+
+  All query params are optional. Without filters, returns all rows for the 4 target provinces (DKI Jakarta, Jawa Barat, DI Yogyakarta, Jawa Timur) and the default jenis pasar (Pasar Tradisional).
+
+  **Query params:**
+  - `provinsi` — `dki-jakarta`, `jawa-barat`, `di-yogyakarta`, `jawa-timur` (slug)
+  - `jenis_pasar` — `tradisional` (default), `modern`, `pedagang-besar`, `produsen`
+  - `komoditas` — `beras`, `daging-ayam`, `daging-sapi`, `telur-ayam`, `bawang-merah`, `bawang-putih`, `cabai-merah`, `cabai-rawit`, `minyak-goreng`, `gula-pasir`
+}
+
+example {
+  name: Today: All Filters Default
+
+  request: {
+    url: {{baseUrl}}/mobileapps/harga-pangan/today
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "Harga pangan hari ini",
+          "data": {
+            "tanggal": "2026-05-21",
+            "jenis_pasar": "Pasar Tradisional",
+            "items": [
+              { "komoditas": "Beras",         "komoditas_slug": "beras",         "provinsi": "DKI Jakarta",   "provinsi_slug": "dki-jakarta",   "harga": 16900, "diff_rp": 100,  "diff_pct": 0.6  },
+              { "komoditas": "Beras",         "komoditas_slug": "beras",         "provinsi": "Jawa Barat",    "provinsi_slug": "jawa-barat",    "harga": 15150, "diff_rp": 0,    "diff_pct": 0.0  },
+              { "komoditas": "Beras",         "komoditas_slug": "beras",         "provinsi": "DI Yogyakarta", "provinsi_slug": "di-yogyakarta", "harga": 14200, "diff_rp": 0,    "diff_pct": 0.0  },
+              { "komoditas": "Beras",         "komoditas_slug": "beras",         "provinsi": "Jawa Timur",    "provinsi_slug": "jawa-timur",    "harga": 14700, "diff_rp": 0,    "diff_pct": 0.0  },
+              { "komoditas": "Cabai Merah",   "komoditas_slug": "cabai-merah",   "provinsi": "DKI Jakarta",   "provinsi_slug": "dki-jakarta",   "harga": 55350, "diff_rp": 3950, "diff_pct": 7.68 }
+            ]
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Today: Filtered by Provinsi & Komoditas
+
+  request: {
+    url: {{baseUrl}}/mobileapps/harga-pangan/today?provinsi=dki-jakarta&komoditas=beras
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "Harga pangan hari ini",
+          "data": {
+            "tanggal": "2026-05-21",
+            "jenis_pasar": "Pasar Tradisional",
+            "items": [
+              { "komoditas": "Beras", "komoditas_slug": "beras", "provinsi": "DKI Jakarta", "provinsi_slug": "dki-jakarta", "harga": 16900, "diff_rp": 100, "diff_pct": 0.6 }
+            ]
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Today: Validation Error
+
+  request: {
+    url: {{baseUrl}}/mobileapps/harga-pangan/today?provinsi=papua&jenis_pasar=ekspor
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 422
+      text: Unprocessable Entity
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "provinsi": ["The selected provinsi is invalid. Use dki-jakarta, jawa-barat, di-yogyakarta, or jawa-timur."],
+          "jenis_pasar": ["The selected jenis pasar is invalid."]
+        }
+      '''
+    }
+  }
+}

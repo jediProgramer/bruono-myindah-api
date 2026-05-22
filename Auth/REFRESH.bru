@@ -1,0 +1,230 @@
+meta {
+  name: REFRESH
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/auth/refresh
+  body: multipartForm
+  auth: none
+}
+
+body:multipart-form {
+  refresh_token: {{refresh_token}}
+}
+
+script:post-response {
+  if (res.status === 200 && res.body) {
+    if (res.body.token) bru.setEnvVar("token", res.body.token);
+    if (res.body.refresh_token) bru.setEnvVar("refresh_token", res.body.refresh_token);
+  }
+}
+
+settings {
+  encodeUrl: true
+}
+
+docs {
+  Exchange the current refresh token for a NEW access token + NEW refresh token (rotation).
+
+  After a successful refresh the old refresh token is revoked; reusing it returns 401. The Flutter client should always replace BOTH stored tokens with the new pair.
+
+  **Body (multipart):**
+  - `refresh_token` (string, required) — the opaque token received at login or from the last successful refresh
+
+  **No Authorization header is needed** — the refresh token alone authenticates this call.
+
+  **Behavior:**
+  - Returns 200 with a new `token` (60-min JWT) + new `refresh_token` (14-day opaque). Both env vars are auto-updated.
+  - Returns 401 if the refresh token is unknown, already revoked (e.g. rotated, or `/logout` was called), or past its 14-day expiry.
+}
+
+example {
+  name: Refresh: Success
+
+  request: {
+    url: {{baseUrl}}/auth/refresh
+    method: POST
+    mode: multipartForm
+    headers: {
+      Accept: application/json
+    }
+
+    body:multipart-form: {
+      refresh_token: izZIkhEr9Jm4ytpUgw9p1SC7C18EaYT3t90aT4Ai0bhiczMBEsHDixydyumJCyyx
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3dlYmFwaS5teWluZGFoLWFwcC5jb20vYXBpL2F1dGgvcmVmcmVzaCIsImlhdCI6MTc3NjkyNDIzMSwiZXhwIjoxNzc2OTI3ODMxLCJzdWIiOiIxIn0.NEW_SIGNATURE",
+          "expires_in_minutes": 60,
+          "refresh_token": "kDVkhJnHVPNPZsbrt3Vr1cIEp9NefpEzJAv6tNSfzublvJKdmeXlI2UpIBfM3YqN",
+          "refresh_token_expires_at": "2026-06-04T09:27:09+00:00",
+          "refresh_token_expires_in_minutes": 20160
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Refresh: Revoked (already rotated / logged out)
+
+  request: {
+    url: {{baseUrl}}/auth/refresh
+    method: POST
+    mode: multipartForm
+    headers: {
+      Accept: application/json
+    }
+
+    body:multipart-form: {
+      refresh_token: izZIkhEr9Jm4ytpUgw9p1SC7C18EaYT3t90aT4Ai0bhiczMBEsHDixydyumJCyyx
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 401
+      text: Unauthorized
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": false,
+          "message": "Refresh token has been revoked"
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Refresh: Expired (>14 days old)
+
+  request: {
+    url: {{baseUrl}}/auth/refresh
+    method: POST
+    mode: multipartForm
+    headers: {
+      Accept: application/json
+    }
+
+    body:multipart-form: {
+      refresh_token: an-ancient-refresh-token-from-three-weeks-ago
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 401
+      text: Unauthorized
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": false,
+          "message": "Refresh token has expired"
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Refresh: Invalid Token
+
+  request: {
+    url: {{baseUrl}}/auth/refresh
+    method: POST
+    mode: multipartForm
+    headers: {
+      Accept: application/json
+    }
+
+    body:multipart-form: {
+      refresh_token: this-is-not-a-real-token
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 401
+      text: Unauthorized
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": false,
+          "message": "Refresh token is invalid"
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Refresh: Missing Body
+
+  request: {
+    url: {{baseUrl}}/auth/refresh
+    method: POST
+    mode: multipartForm
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 422
+      text: Unprocessable Entity
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "refresh_token": ["The refresh token field is required."]
+        }
+      '''
+    }
+  }
+}

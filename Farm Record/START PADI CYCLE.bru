@@ -1,0 +1,205 @@
+meta {
+  name: START PADI CYCLE
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/mobileapps/farm/cycles
+  body: multipartForm
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+}
+
+body:multipart-form {
+  transplant_date: 2026-05-21
+  template: padi_jajar_legowo_super
+  notes: Sawah blok A
+}
+
+settings {
+  encodeUrl: true
+}
+
+docs {
+  Starts a new padi growing cycle. Server auto-generates ~45 activities (pemupukan, penyemprotan, panen, dll) based on the BRIN Jajar Legowo Super calendar, anchored to the transplant date.
+
+  **Body (multipart):**
+  - `transplant_date` (date YYYY-MM-DD, required) — Hari ke-1
+  - `template` (string, required) — `padi_jajar_legowo_super` (only template for now)
+  - `notes` (string, optional)
+
+  **Authorization:** only users with role `farmer` may start a cycle.
+}
+
+example {
+  name: Start Cycle: Success
+
+  request: {
+    url: {{baseUrl}}/mobileapps/farm/cycles
+    method: POST
+    mode: multipartForm
+    headers: {
+      Accept: application/json
+      Authorization: Bearer {{token}}
+    }
+
+    body:multipart-form: {
+      transplant_date: 2026-05-21
+      template: padi_jajar_legowo_super
+      notes: Sawah blok A
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 201
+      text: Created
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "Padi cycle started",
+          "data": {
+            "id": 1,
+            "template": "padi_jajar_legowo_super",
+            "transplant_date": "2026-05-21",
+            "estimated_harvest_date": "2026-08-19",
+            "activities_created": 45,
+            "notes": "Sawah blok A"
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Start Cycle: Already Active
+
+  request: {
+    url: {{baseUrl}}/mobileapps/farm/cycles
+    method: POST
+    mode: multipartForm
+    headers: {
+      Accept: application/json
+      Authorization: Bearer {{token}}
+    }
+
+    body:multipart-form: {
+      transplant_date: 2026-05-21
+      template: padi_jajar_legowo_super
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 409
+      text: Conflict
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": false,
+          "message": "You already have an active padi cycle. Mark it as harvested first."
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Start Cycle: Forbidden (non-farmer)
+
+  request: {
+    url: {{baseUrl}}/mobileapps/farm/cycles
+    method: POST
+    mode: multipartForm
+    headers: {
+      Accept: application/json
+      Authorization: Bearer {{token}}
+    }
+
+    body:multipart-form: {
+      transplant_date: 2026-05-21
+      template: padi_jajar_legowo_super
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 403
+      text: Forbidden
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": false,
+          "message": "Only farmers can start a padi cycle"
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Start Cycle: Validation Error
+
+  request: {
+    url: {{baseUrl}}/mobileapps/farm/cycles
+    method: POST
+    mode: multipartForm
+    headers: {
+      Accept: application/json
+      Authorization: Bearer {{token}}
+    }
+
+    body:multipart-form: {
+      transplant_date: ""
+      template: invalid_template
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 422
+      text: Unprocessable Entity
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "transplant_date": ["The transplant date field is required."],
+          "template": ["The selected template is invalid."]
+        }
+      '''
+    }
+  }
+}

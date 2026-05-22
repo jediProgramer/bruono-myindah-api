@@ -1,0 +1,97 @@
+meta {
+  name: DELETE
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{baseUrl}}/admin/recipes/{{recipeId}}
+  body: none
+  auth: inherit
+}
+
+vars:pre-request {
+  recipeId: 1
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  Soft-deletes the recipe and cascades the `recipe_recommendations` rows.
+
+  **Path params:**
+  - `{recipeId}` (int, required)
+}
+
+example {
+  name: Delete: Success
+
+  request: {
+    url: {{baseUrl}}/admin/recipes/1
+    method: DELETE
+    mode: none
+    headers: {
+      Accept: application/json
+      Authorization: Bearer {{token}}
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "Recipe deleted",
+          "data": null
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Delete: Not Found
+
+  request: {
+    url: {{baseUrl}}/admin/recipes/9999
+    method: DELETE
+    mode: none
+    headers: {
+      Accept: application/json
+      Authorization: Bearer {{token}}
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 404
+      text: Not Found
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": false,
+          "message": "Recipe not found"
+        }
+      '''
+    }
+  }
+}

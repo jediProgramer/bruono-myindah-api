@@ -1,0 +1,163 @@
+meta {
+  name: UPDATE
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/admin/recipes/{{recipeId}}
+  body: multipartForm
+  auth: inherit
+}
+
+vars:pre-request {
+  recipeId: 1
+}
+
+headers {
+  Accept: application/json
+}
+
+body:multipart-form {
+  title: Gado-Gado Sayur (revisi)
+  kcal: 310
+  _method: PATCH
+}
+
+settings {
+  encodeUrl: true
+}
+
+docs {
+  Same fields as CREATE; all optional (partial update). Use `_method=PATCH` so multipart can carry image upload.
+
+  **Path params:**
+  - `{recipeId}` (int, required)
+}
+
+example {
+  name: Update: Success
+
+  request: {
+    url: {{baseUrl}}/admin/recipes/1
+    method: POST
+    mode: multipartForm
+    headers: {
+      Accept: application/json
+      Authorization: Bearer {{token}}
+    }
+
+    body:multipart-form: {
+      title: Gado-Gado Sayur (revisi)
+      kcal: 310
+      _method: PATCH
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "Recipe updated",
+          "data": {
+            "id": 1,
+            "slug": "gado-gado-sayur",
+            "title": "Gado-Gado Sayur (revisi)",
+            "kcal": 310,
+            "updated_at": "2026-05-21T08:42:11+07:00"
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Update: Not Found
+
+  request: {
+    url: {{baseUrl}}/admin/recipes/9999
+    method: POST
+    mode: multipartForm
+    headers: {
+      Accept: application/json
+      Authorization: Bearer {{token}}
+    }
+
+    body:multipart-form: {
+      title: anything
+      _method: PATCH
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 404
+      text: Not Found
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": false,
+          "message": "Recipe not found"
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Update: Validation Error
+
+  request: {
+    url: {{baseUrl}}/admin/recipes/1
+    method: POST
+    mode: multipartForm
+    headers: {
+      Accept: application/json
+      Authorization: Bearer {{token}}
+    }
+
+    body:multipart-form: {
+      kcal: -50
+      _method: PATCH
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 422
+      text: Unprocessable Entity
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "kcal": ["The kcal must be at least 0."]
+        }
+      '''
+    }
+  }
+}

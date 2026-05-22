@@ -1,0 +1,115 @@
+meta {
+  name: SHOW
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/admin/recipes/{{recipeId}}
+  body: none
+  auth: inherit
+}
+
+vars:pre-request {
+  recipeId: 1
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  Full recipe detail including `recommendations` (linked weather × meal_time × region rows).
+
+  **Path params:**
+  - `{recipeId}` (int, required)
+}
+
+example {
+  name: Show: Success
+
+  request: {
+    url: {{baseUrl}}/admin/recipes/1
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+      Authorization: Bearer {{token}}
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "Recipe detail",
+          "data": {
+            "id": 1,
+            "slug": "gado-gado-sayur",
+            "title": "Gado-Gado Sayur",
+            "type": "food",
+            "image_url": "https://webapi.myindah-app.com/storage/recipes/gado-gado.jpg",
+            "kcal": 320,
+            "durasi_menit": 35,
+            "porsi": 4,
+            "difficulty": "Mudah",
+            "kategori": "Berbasis sayur",
+            "tags": ["sayur"],
+            "ingredients": "200g tauge\n100g kangkung",
+            "instructions": "1. Rebus sayuran\n2. Sajikan",
+            "recommendations": [
+              { "id": 12, "region_slug": "jabodetabek",   "weather_slug": "panas-terik", "meal_time_slug": "siang", "is_default": true },
+              { "id": 18, "region_slug": "bandung-raya",  "weather_slug": "panas-terik", "meal_time_slug": "siang", "is_default": false }
+            ]
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Show: Not Found
+
+  request: {
+    url: {{baseUrl}}/admin/recipes/9999
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+      Authorization: Bearer {{token}}
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 404
+      text: Not Found
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": false,
+          "message": "Recipe not found"
+        }
+      '''
+    }
+  }
+}

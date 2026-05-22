@@ -1,0 +1,176 @@
+meta {
+  name: HOME RECOMMENDATION
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/mobileapps/resep/today
+  body: none
+  auth: none
+}
+
+params:query {
+  city: jakarta
+  temp_c: 29
+  feels_like_c: 34
+  humidity_pct: 75
+  precip_mm: 0
+  cloud_cover_pct: 20
+  weather_alert: false
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  Used by the Konsumen Beranda screen. Flutter passes its current Open-Meteo readings; backend bucketizes them into a weather condition (Panas / Cerah / Berawan / Hujan ringan / dst), figures out the meal time from the request's wall-clock, and returns the headline recipe card.
+
+  **Query params:**
+  - `city` (string, required) — `jakarta`, `bandung`, `yogyakarta`, `surabaya` (slug)
+  - `temp_c` (number, required) — Current temperature in Celsius
+  - `feels_like_c` (number, optional) — Apparent temp / heat index
+  - `humidity_pct` (number, optional) — 0-100
+  - `precip_mm` (number, optional) — Precipitation in last hour (mm)
+  - `cloud_cover_pct` (number, optional) — 0-100
+  - `weather_alert` (bool, optional) — `true` if Open-Meteo reports any storm/alert
+
+  ## Bucketization Logic (priority order)
+  1. `weather_alert=true` → **cuaca-ekstrem**
+  2. `precip_mm > 5` → **hujan-deras**
+  3. `precip_mm > 0` → **hujan-ringan**
+  4. `feels_like_c >= 39 OR temp_c >= 34` → **sangat-panas**
+  5. `temp_c >= 30 AND precip_mm = 0` → **panas-terik**
+  6. `cloud_cover_pct >= 75 AND humidity_pct >= 75` → **mendung-sebelum-hujan**
+  7. `cloud_cover_pct >= 60` → **berawan**
+  8. else → **cerah-normal**
+}
+
+example {
+  name: Recommendation: Success
+
+  request: {
+    url: {{baseUrl}}/mobileapps/resep/today?city=jakarta&temp_c=29&feels_like_c=34&humidity_pct=75&precip_mm=0&cloud_cover_pct=20
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "Rekomendasi hari ini",
+          "data": {
+            "weather_condition": {
+              "slug": "berawan",
+              "label": "Berawan",
+              "temp_c": 28,
+              "feels_like_c": 30,
+              "humidity_pct": 76
+            },
+            "meal_time": {
+              "slug": "malam",
+              "label": "Makan Malam"
+            },
+            "headline": {
+              "slug": "gado-gado-sayur",
+              "title": "Gado-Gado Sayur",
+              "image": "https://webapi.myindah-app.com/storage/recipes/gado-gado.jpg",
+              "durasi_menit": 35,
+              "kcal": 320,
+              "difficulty": "Mudah"
+            }
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Recommendation: Rainy (precip > 5mm)
+
+  request: {
+    url: {{baseUrl}}/mobileapps/resep/today?city=jakarta&temp_c=25&humidity_pct=88&precip_mm=8
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "Rekomendasi hari ini",
+          "data": {
+            "weather_condition": { "slug": "hujan-deras", "label": "Hujan deras", "temp_c": 25, "humidity_pct": 88, "precip_mm": 8 },
+            "meal_time": { "slug": "malam", "label": "Makan Malam" },
+            "headline": { "slug": "soto-ayam", "title": "Soto Ayam", "image": "https://webapi.myindah-app.com/storage/recipes/soto.jpg", "durasi_menit": 45, "kcal": 280, "difficulty": "Sedang" }
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Recommendation: Validation Error
+
+  request: {
+    url: {{baseUrl}}/mobileapps/resep/today?city=denpasar
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 422
+      text: Unprocessable Entity
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "city": ["The selected city is invalid. Use jakarta, bandung, yogyakarta, or surabaya."],
+          "temp_c": ["The temp c field is required."]
+        }
+      '''
+    }
+  }
+}

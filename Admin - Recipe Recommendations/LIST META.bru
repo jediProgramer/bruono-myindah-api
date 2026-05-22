@@ -1,0 +1,76 @@
+meta {
+  name: LIST META (dropdown options)
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/admin/recipe-recommendations/meta
+  body: none
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  Returns dropdown options for the admin "link recipe" form: regions, weather_conditions, meal_times.
+}
+
+example {
+  name: Meta: Success
+
+  request: {
+    url: {{baseUrl}}/admin/recipe-recommendations/meta
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+      Authorization: Bearer {{token}}
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "Recommendation meta",
+          "data": {
+            "regions": [
+              { "slug": "jabodetabek",         "label": "Jabodetabek" },
+              { "slug": "bandung-raya",        "label": "Bandung Raya" },
+              { "slug": "gerbangkertosusilo",  "label": "Gerbangkertosusilo" },
+              { "slug": "yogyakarta-magelang", "label": "Yogyakarta + Magelang" }
+            ],
+            "weather_conditions": [
+              { "slug": "panas-terik",           "label": "Panas / terik" },
+              { "slug": "sangat-panas",          "label": "Sangat panas" },
+              { "slug": "cerah-normal",          "label": "Cerah normal" },
+              { "slug": "berawan",               "label": "Berawan" },
+              { "slug": "mendung-sebelum-hujan", "label": "Mendung sebelum hujan" },
+              { "slug": "hujan-ringan",          "label": "Hujan ringan" },
+              { "slug": "hujan-deras",           "label": "Hujan deras" }
+            ],
+            "meal_times": [
+              { "slug": "sarapan", "label": "Sarapan" },
+              { "slug": "siang",   "label": "Makan Siang" },
+              { "slug": "malam",   "label": "Makan Malam" }
+            ]
+          }
+        }
+      '''
+    }
+  }
+}

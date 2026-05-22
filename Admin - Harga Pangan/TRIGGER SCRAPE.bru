@@ -1,0 +1,94 @@
+meta {
+  name: TRIGGER SCRAPE
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/admin/harga-pangan/scrape
+  body: none
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  Forces an out-of-schedule run of the PIHPS scraper. Useful when the 07:00 cron failed and ops needs to rerun.
+
+  Queued: returns immediately with a job ID; the actual work happens in a Redis-backed queue worker.
+}
+
+example {
+  name: Trigger: Success
+
+  request: {
+    url: {{baseUrl}}/admin/harga-pangan/scrape
+    method: POST
+    mode: none
+    headers: {
+      Accept: application/json
+      Authorization: Bearer {{token}}
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 202
+      text: Accepted
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "Scrape job dispatched",
+          "data": {
+            "job_id": "9f1c8a7b-3e2d-4f5a-9b8c-2d1e3f4a5b6c"
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Trigger: Recently Run (rate-limited)
+
+  request: {
+    url: {{baseUrl}}/admin/harga-pangan/scrape
+    method: POST
+    mode: none
+    headers: {
+      Accept: application/json
+      Authorization: Bearer {{token}}
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 429
+      text: Too Many Requests
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": false,
+          "message": "A scrape job was dispatched in the last 5 minutes. Wait before triggering again."
+        }
+      '''
+    }
+  }
+}
