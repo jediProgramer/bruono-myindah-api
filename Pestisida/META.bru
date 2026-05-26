@@ -1,0 +1,72 @@
+meta {
+  name: META
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/mobileapps/pestisida/meta
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  Public endpoint. Returns filter dropdown options (distinct komoditas + jenis_sasaran for the latest snapshot). Use these to populate the Hama filter UI.
+}
+
+example {
+  name: Meta: Success
+
+  request: {
+    url: {{baseUrl}}/mobileapps/pestisida/meta
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "Meta pestisida",
+          "data": {
+            "snapshot_date": "2026-05-26",
+            "komoditas": [
+              "Bawang merah",
+              "Cabai",
+              "Jagung",
+              "Kakao",
+              "Kelapa sawit",
+              "Padi",
+              "Tomat"
+            ],
+            "jenis_sasaran": [
+              "gulma berdaun lebar",
+              "gulma rumput",
+              "hama trips",
+              "kutu daun",
+              "wereng coklat"
+            ]
+          }
+        }
+      '''
+    }
+  }
+}

@@ -1,0 +1,62 @@
+meta {
+  name: SNAPSHOTS
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/admin/pestisida/snapshots
+  body: none
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  Admin (auth-only) summary of all snapshot dates currently in the database. Returns row count + distinct merek count + last-fetched timestamp per date. The scraper retains only the latest snapshot to keep the table compact, so typically only one row is returned.
+}
+
+example {
+  name: Snapshots: Latest
+
+  request: {
+    url: {{baseUrl}}/admin/pestisida/snapshots
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+      Authorization: Bearer {{token}}
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "Pestisida snapshots",
+          "data": [
+            {
+              "snapshot_date": "2026-05-26",
+              "row_count": 20008,
+              "merek_count": 5991,
+              "last_fetched_at": "2026-05-26T13:14:29.000000Z"
+            }
+          ]
+        }
+      '''
+    }
+  }
+}

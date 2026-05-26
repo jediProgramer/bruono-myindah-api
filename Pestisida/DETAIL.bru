@@ -1,0 +1,108 @@
+meta {
+  name: DETAIL
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/mobileapps/pestisida/98
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  Public endpoint. Synthetic detail view — returns merek header info plus an `applications[]` array listing every (komoditas, jenis_sasaran, organisme, dosis) row registered for this brand.
+
+  **URL params:**
+  - `{merek_id}` (int) — the numeric id from the source registry (e.g. 98 = AGAFENA 230 EC)
+}
+
+example {
+  name: Detail: AGAFENA 230 EC
+
+  request: {
+    url: {{baseUrl}}/mobileapps/pestisida/98
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "Detail pestisida",
+          "data": {
+            "snapshot_date": "2026-05-26",
+            "merek_id": 98,
+            "merek_pestisida": "AGAFENA 230 EC",
+            "bahan_aktif": "abamektin (abamectin): 30 g/l klorfenapir (chlorfenapyr): 200 g/l",
+            "jenis_pestisida": "Insektisida racun kontak dan lambung berbentuk pekatan yang dapat diemulsikan",
+            "pemegang_pendaftaran": "PT Agro Guna Makmur",
+            "nomor_pendaftaran": "RI. 01010120155286",
+            "tanggal_akhir_izin": "20 Januari 2031",
+            "applications": [
+              {
+                "komoditas": "Cabai",
+                "jenis_sasaran": "hama trips",
+                "organisme": "Thrips parvispinus",
+                "cara_aplikasi_dosis": "Penyemprotan volume tinggi: 0,75 ml/l"
+              }
+            ]
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Detail: Not found
+
+  request: {
+    url: {{baseUrl}}/mobileapps/pestisida/999999
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 404
+      text: Not Found
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": false,
+          "message": "Merek tidak ditemukan"
+        }
+      '''
+    }
+  }
+}
