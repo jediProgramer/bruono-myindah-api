@@ -5,9 +5,15 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/admin/posts
+  url: {{baseUrl}}/admin/posts?page=1
   body: none
   auth: inherit
+}
+
+params:query {
+  page: 1
+  search: ~
+  category_id: ~
 }
 
 headers {
@@ -19,5 +25,113 @@ settings {
 }
 
 docs {
-  List post milik admin (paginated, 5 per halaman). Filter via query `?search=...`.
+  List post milik admin yang sedang login (paginated, 5 per halaman).
+
+  **Query params:**
+  - `page` (int, default 1)
+  - `search` (string) — `title LIKE %query%`
+  - `category_id` (int) — filter ke satu kategori (misal `6` untuk Tanaman)
+}
+
+example {
+  name: List — filter ke kategori Tanaman
+
+  request: {
+    url: {{baseUrl}}/admin/posts?category_id=6&page=1
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+      Authorization: Bearer {{token}}
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "List Data Posts",
+          "data": {
+            "current_page": 1,
+            "per_page": 5,
+            "total": 23,
+            "last_page": 5,
+            "data": [
+              {
+                "id": 29,
+                "title": "Nanas",
+                "slug": "nanas",
+                "image": "nanas.jpg",
+                "content": "Tanaman buah tropis. Sentra: Subang, Lampung, Kediri.",
+                "category_id": 6,
+                "user_id": 1,
+                "source_url": null,
+                "embed_provider": null,
+                "embed": null,
+                "user":     { "id": 1, "name": "Administrator" },
+                "category": { "id": 6, "name": "Tanaman" },
+                "created_at": "2026-05-26T13:55:00.000000Z"
+              }
+            ]
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: List — search by title
+
+  request: {
+    url: {{baseUrl}}/admin/posts?search=cabai
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+      Authorization: Bearer {{token}}
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "List Data Posts",
+          "data": {
+            "current_page": 1,
+            "per_page": 5,
+            "total": 2,
+            "last_page": 1,
+            "data": [
+              { "id": 14, "title": "Cabai Merah", "slug": "cabai-merah", "category": { "id": 6, "name": "Tanaman" } },
+              { "id": 15, "title": "Cabai Rawit", "slug": "cabai-rawit", "category": { "id": 6, "name": "Tanaman" } }
+            ]
+          }
+        }
+      '''
+    }
+  }
 }

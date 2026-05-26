@@ -5,9 +5,17 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/public/posts/category/3
+  url: {{baseUrl}}/public/posts/category/6?page=1
   body: none
   auth: none
+}
+
+params:query {
+  page: 1
+}
+
+headers {
+  Accept: application/json
 }
 
 settings {
@@ -15,7 +23,141 @@ settings {
 }
 
 docs {
-  # **GET POST BY CATERGORY ID**
-  
-  Menampilkan data artikel dengan nama **POST** secara keseluruhan menggunakan method **GET** dengan memasukan **catergory_id** setelah **post/catergory_id**
+  Paginated list of posts in a single category. Use this when the user taps a category link in the public site / mobile app.
+
+  **URL params:**
+  - `{category_id}` — numeric id (see `/public/category_list` for the full list).
+
+  **Known categories on prod (id → name):**
+  - `1` Tips
+  - `2` Iklim
+  - `3` Resep
+  - `4` Social Media
+  - `6` Tanaman   — seeded with 23 Tanaman Pangan + Hortikultura entries (each with a real Wikipedia photo)
+}
+
+example {
+  name: Tanaman — first page
+
+  request: {
+    url: {{baseUrl}}/public/posts/category/6?page=1
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "List Data Posts By Category Id",
+          "data": {
+            "current_page": 1,
+            "per_page": 10,
+            "total": 23,
+            "last_page": 3,
+            "data": [
+              {
+                "id": 7,
+                "title": "Padi",
+                "slug": "padi",
+                "image": "padi.jpg",
+                "content": "Sumber karbohidrat utama. Ditanam serentak di sawah irigasi maupun tadah hujan; siklus tanam ±100–120 hari.",
+                "category_id": 6,
+                "user_id": 1,
+                "source_url": null,
+                "embed_provider": null,
+                "embed": null,
+                "user": { "id": 1, "name": "Administrator" },
+                "category": { "id": 6, "name": "Tanaman" },
+                "created_at": "2026-05-26T13:55:00.000000Z"
+              },
+              {
+                "id": 8,
+                "title": "Jagung",
+                "slug": "jagung",
+                "image": "jagung.jpg",
+                "content": "Sumber karbohidrat alternatif sekaligus pakan ternak. Tahan kering, panen ±90–110 hari setelah tanam.",
+                "category_id": 6,
+                "category": { "id": 6, "name": "Tanaman" }
+              }
+            ]
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Social Media — embedded posts
+
+  request: {
+    url: {{baseUrl}}/public/posts/category/4?page=1
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "List Data Posts By Category Id",
+          "data": {
+            "current_page": 1,
+            "per_page": 10,
+            "total": 1,
+            "last_page": 1,
+            "data": [
+              {
+                "id": 6,
+                "title": "TikTok: Gudangpeluru 7539789048500571400",
+                "slug": "tiktok-gudangpeluru-7539789048500571400",
+                "image": null,
+                "content": null,
+                "source_url": "https://www.tiktok.com/@gudangpeluru.45/video/7539789048500571400",
+                "embed_provider": "tiktok",
+                "embed": {
+                  "provider": "tiktok",
+                  "embed_url": "https://www.tiktok.com/embed/v2/7539789048500571400",
+                  "embed_html": "<blockquote class=\"tiktok-embed\" …></blockquote> <script async src=\"https://www.tiktok.com/embed.js\"></script>",
+                  "thumbnail_url": "https://p16-common-sign.tiktokcdn.com/…",
+                  "title": "Pink Floyd - Comfortably Numb #pinkfloyd",
+                  "author_name": "Gudang Peluru"
+                },
+                "category": { "id": 4, "name": "Social Media" }
+              }
+            ]
+          }
+        }
+      '''
+    }
+  }
 }
