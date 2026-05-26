@@ -1,0 +1,23 @@
+meta {
+  name: DELETE
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{baseUrl}}/admin/posts/1
+  body: none
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+}
+
+settings {
+  encodeUrl: true
+}
+
+docs {
+  Hapus post berdasarkan id. Menghapus juga file gambar lokal bila ada.
+}

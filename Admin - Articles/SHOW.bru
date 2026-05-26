@@ -1,0 +1,23 @@
+meta {
+  name: SHOW
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/admin/posts/1
+  body: none
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+}
+
+settings {
+  encodeUrl: true
+}
+
+docs {
+  Detail post berdasarkan id.
+}

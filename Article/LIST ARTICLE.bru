@@ -16,6 +16,13 @@ settings {
 
 docs {
   # **GET POST**
-  
+
   Menampilkan data artikel dengan nama **POST** secara keseluruhan menggunakan method **GET**
+
+  Setiap post sekarang menyertakan field baru bila merupakan post sosial media:
+  - `source_url` — URL asli (TikTok / YouTube / Instagram)
+  - `embed_provider` — `tiktok` | `youtube` | `instagram`
+  - `embed` — object: `{ provider, original_url, embed_url, embed_html, thumbnail_url, title, author_name }`
+
+  Bila bukan post sosial, `source_url`/`embed_provider` bernilai `null` dan `embed` adalah `null`.
 }

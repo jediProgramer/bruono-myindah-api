@@ -1,0 +1,23 @@
+meta {
+  name: LIST
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/admin/posts
+  body: none
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+}
+
+settings {
+  encodeUrl: true
+}
+
+docs {
+  List post milik admin (paginated, 5 per halaman). Filter via query `?search=...`.
+}
