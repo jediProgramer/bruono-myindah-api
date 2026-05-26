@@ -17,6 +17,7 @@ params:query {
   komoditas: ~
   jenis_sasaran: ~
   merek_id: ~
+  sort: akhir_izin_desc
 }
 
 headers {
@@ -33,6 +34,7 @@ docs {
   - `komoditas` (string) — substring match
   - `jenis_sasaran` (string) — substring match
   - `merek_id` (int) — exact match for a single brand
+  - `sort` (enum, default `akhir_izin_desc`) — one of `akhir_izin_desc`, `akhir_izin_asc`, `nama_asc`, `nama_desc`
 }
 
 example {

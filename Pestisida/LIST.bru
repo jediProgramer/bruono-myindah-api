@@ -16,6 +16,7 @@ params:query {
   q: ~
   komoditas: ~
   jenis_sasaran: ~
+  sort: akhir_izin_desc
 }
 
 headers {
@@ -31,6 +32,7 @@ docs {
   - `q` (string, max 80) — matches merek, bahan aktif, or no. pendaftaran
   - `komoditas` (string, max 120) — substring match
   - `jenis_sasaran` (string, max 120) — substring match
+  - `sort` (enum, default `akhir_izin_desc`) — one of `akhir_izin_desc`, `akhir_izin_asc`, `nama_asc`, `nama_desc`
 }
 
 example {
