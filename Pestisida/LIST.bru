@@ -16,6 +16,7 @@ params:query {
   q: ~
   komoditas: ~
   jenis_sasaran: ~
+  type: ~
   sort: akhir_izin_desc
 }
 
@@ -36,8 +37,11 @@ docs {
     - array: `?komoditas[]=cabai&komoditas[]=padi`
     Logic is OR within column (returns rows matching *any* of the values).
   - `jenis_sasaran` — substring match, **case-insensitive**, **multi-value** (same formats + OR semantics as `komoditas`)
-  - When both `komoditas` and `jenis_sasaran` are sent, they're AND'd across columns (komoditas IN {…} AND jenis_sasaran IN {…}).
+  - `type` (enum, **multi-value**, sejak 2026-05-27) — derived from `jenis_pestisida` prefix. Accepts single, comma-separated (`?type=insektisida,fungisida`), or array (`?type[]=insektisida&type[]=fungisida`). Valid keys: `insektisida`, `fungisida`, `herbisida`, `akarisida`, `rodentisida`, `nematisida`, `moluskisida`, `bakterisida`, `zpt`, `pupuk`, `lainnya`. Invalid keys return 422.
+  - When `komoditas`, `jenis_sasaran`, and `type` are sent together they're AND'd across columns (each column's values OR'd internally).
   - `sort` (enum, default `akhir_izin_desc`) — one of `akhir_izin_desc`, `akhir_izin_asc`, `nama_asc`, `nama_desc`
+
+  **Response field `type` (sejak 2026-05-27):** Every row in `data[]` includes a derived `type` field (same enum as above) alongside the verbose `jenis_pestisida`. Use `type` for chip filters / icons; show `jenis_pestisida` for the full label.
 }
 
 example {
@@ -80,6 +84,7 @@ example {
                 "merek_pestisida": "AGAFENA 230 EC",
                 "bahan_aktif": "abamektin (abamectin): 30 g/l klorfenapir (chlorfenapyr): 200 g/l",
                 "jenis_pestisida": "Insektisida racun kontak dan lambung berbentuk pekatan yang dapat diemulsikan",
+                "type": "insektisida",
                 "pemegang_pendaftaran": "PT Agro Guna Makmur",
                 "nomor_pendaftaran": "RI. 01010120155286",
                 "tanggal_akhir_izin": "20 Januari 2031",
@@ -87,6 +92,51 @@ example {
                 "jenis_sasaran_list": ["hama trips"],
                 "sasaran_count": 1
               }
+            ]
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: List: Filter by type
+
+  request: {
+    url: {{baseUrl}}/mobileapps/pestisida?type=insektisida,fungisida&per_page=2
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "List pestisida",
+          "data": {
+            "snapshot_date": "2026-05-26",
+            "current_page": 1,
+            "last_page": 1534,
+            "per_page": 2,
+            "total": 3068,
+            "data": [
+              { "merek_id": 98, "merek_pestisida": "AGAFENA 230 EC", "type": "insektisida", "jenis_pestisida": "Insektisida racun kontak…", "sasaran_count": 1 },
+              { "merek_id": 12, "merek_pestisida": "AMISTAR 250 SC", "type": "fungisida", "jenis_pestisida": "Fungisida sistemik…", "sasaran_count": 2 }
             ]
           }
         }

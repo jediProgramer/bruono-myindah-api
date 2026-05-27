@@ -16,6 +16,7 @@ params:query {
   q: ~
   komoditas: ~
   jenis_sasaran: ~
+  type: ~
   merek_id: ~
   sort: akhir_izin_desc
 }
@@ -33,9 +34,12 @@ docs {
   - `q` (string) — matches merek / bahan aktif / no. pendaftaran / pemegang. **Case-insensitive** (since 2026-05-27)
   - `komoditas` — substring match, **case-insensitive**, **multi-value** (since 2026-05-27). Accepts single, comma-separated (`?komoditas=cabai,padi`), or array (`?komoditas[]=cabai&komoditas[]=padi`). OR within column.
   - `jenis_sasaran` — substring match, **case-insensitive**, **multi-value** (same formats + OR semantics as `komoditas`)
-  - When both `komoditas` and `jenis_sasaran` are sent, they're AND'd across columns.
+  - `type` (enum, **multi-value**, since 2026-05-27) — derived from `jenis_pestisida` prefix. Accepts single, comma-separated, or array. Valid: `insektisida`, `fungisida`, `herbisida`, `akarisida`, `rodentisida`, `nematisida`, `moluskisida`, `bakterisida`, `zpt`, `pupuk`, `lainnya`. Unknown values are silently ignored (admin permissively filtered, mobile returns 422).
+  - When `komoditas`, `jenis_sasaran`, and `type` are sent together they're AND'd across columns.
   - `merek_id` (int) — exact match for a single brand
   - `sort` (enum, default `akhir_izin_desc`) — one of `akhir_izin_desc`, `akhir_izin_asc`, `nama_asc`, `nama_desc`
+
+  **Response field `type` (since 2026-05-27):** every row in `data[]` includes a derived `type` field alongside the verbose `jenis_pestisida`.
 }
 
 example {
@@ -80,6 +84,7 @@ example {
                 "merek_pestisida": "AGAFENA 230 EC",
                 "bahan_aktif": "abamektin (abamectin): 30 g/l klorfenapir (chlorfenapyr): 200 g/l",
                 "jenis_pestisida": "Insektisida racun kontak dan lambung berbentuk pekatan yang dapat diemulsikan",
+                "type": "insektisida",
                 "komoditas": "Cabai",
                 "jenis_sasaran": "hama trips",
                 "organisme": "Thrips parvispinus",

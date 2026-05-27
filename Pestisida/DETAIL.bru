@@ -19,6 +19,8 @@ docs {
 
   **URL params:**
   - `{merek_id}` (int) — the numeric id from the source registry (e.g. 98 = AGAFENA 230 EC)
+
+  Response includes derived `type` field (sejak 2026-05-27) — one of `insektisida`, `fungisida`, `herbisida`, `akarisida`, `rodentisida`, `nematisida`, `moluskisida`, `bakterisida`, `zpt`, `pupuk`, `lainnya`. Same enum as `?type=` filter on LIST.
 }
 
 example {
@@ -55,6 +57,7 @@ example {
             "merek_pestisida": "AGAFENA 230 EC",
             "bahan_aktif": "abamektin (abamectin): 30 g/l klorfenapir (chlorfenapyr): 200 g/l",
             "jenis_pestisida": "Insektisida racun kontak dan lambung berbentuk pekatan yang dapat diemulsikan",
+            "type": "insektisida",
             "pemegang_pendaftaran": "PT Agro Guna Makmur",
             "nomor_pendaftaran": "RI. 01010120155286",
             "tanggal_akhir_izin": "20 Januari 2031",

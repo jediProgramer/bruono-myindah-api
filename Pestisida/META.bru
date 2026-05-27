@@ -15,7 +15,12 @@ headers {
 }
 
 docs {
-  Public endpoint. Returns filter dropdown options (distinct komoditas + jenis_sasaran for the latest snapshot). Use these to populate the Hama filter UI.
+  Public endpoint. Returns filter dropdown options for the latest snapshot:
+  - `komoditas` — distinct komoditas values
+  - `jenis_sasaran` — distinct jenis_sasaran values
+  - `types` (sejak 2026-05-27) — full enum of pesticide types with row count per type in the current snapshot. Use this for chip badges ("Insektisida (4055)", "Fungisida (1889)"). Keys are stable; counts refresh with each snapshot.
+
+  Use these to populate the Hama filter UI.
 }
 
 example {
@@ -63,6 +68,19 @@ example {
               "hama trips",
               "kutu daun",
               "wereng coklat"
+            ],
+            "types": [
+              { "key": "insektisida", "count": 4055 },
+              { "key": "fungisida",   "count": 1889 },
+              { "key": "herbisida",   "count": 11847 },
+              { "key": "akarisida",   "count": 24 },
+              { "key": "rodentisida", "count": 86 },
+              { "key": "nematisida",  "count": 20 },
+              { "key": "moluskisida", "count": 116 },
+              { "key": "bakterisida", "count": 23 },
+              { "key": "zpt",         "count": 295 },
+              { "key": "pupuk",       "count": 0 },
+              { "key": "lainnya",     "count": 1633 }
             ]
           }
         }
