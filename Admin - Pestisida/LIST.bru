@@ -31,8 +31,9 @@ docs {
   - `page` (int, default 1)
   - `per_page` (int, default 25, max 100)
   - `q` (string) — matches merek / bahan aktif / no. pendaftaran / pemegang. **Case-insensitive** (since 2026-05-27)
-  - `komoditas` (string) — substring match, **case-insensitive**
-  - `jenis_sasaran` (string) — substring match, **case-insensitive**
+  - `komoditas` — substring match, **case-insensitive**, **multi-value** (since 2026-05-27). Accepts single, comma-separated (`?komoditas=cabai,padi`), or array (`?komoditas[]=cabai&komoditas[]=padi`). OR within column.
+  - `jenis_sasaran` — substring match, **case-insensitive**, **multi-value** (same formats + OR semantics as `komoditas`)
+  - When both `komoditas` and `jenis_sasaran` are sent, they're AND'd across columns.
   - `merek_id` (int) — exact match for a single brand
   - `sort` (enum, default `akhir_izin_desc`) — one of `akhir_izin_desc`, `akhir_izin_asc`, `nama_asc`, `nama_desc`
 }

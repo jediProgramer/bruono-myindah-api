@@ -30,8 +30,13 @@ docs {
   - `per_page` (int, default 20, max 50)
   - `page` (int, default 1)
   - `q` (string, max 80) — matches merek, bahan aktif, or no. pendaftaran. **Case-insensitive** (sejak 2026-05-27): `q=agafena`, `q=AGAFENA`, `q=Agafena` semua match `AGAFENA 230 EC`. Cross-DB safe (Postgres prod + MySQL dev).
-  - `komoditas` (string, max 120) — substring match, **case-insensitive**
-  - `jenis_sasaran` (string, max 120) — substring match, **case-insensitive**
+  - `komoditas` — substring match, **case-insensitive**, **multi-value** (sejak 2026-05-27). Accepts:
+    - single: `?komoditas=cabai`
+    - comma-separated: `?komoditas=cabai,padi,jagung`
+    - array: `?komoditas[]=cabai&komoditas[]=padi`
+    Logic is OR within column (returns rows matching *any* of the values).
+  - `jenis_sasaran` — substring match, **case-insensitive**, **multi-value** (same formats + OR semantics as `komoditas`)
+  - When both `komoditas` and `jenis_sasaran` are sent, they're AND'd across columns (komoditas IN {…} AND jenis_sasaran IN {…}).
   - `sort` (enum, default `akhir_izin_desc`) — one of `akhir_izin_desc`, `akhir_izin_asc`, `nama_asc`, `nama_desc`
 }
 
@@ -124,6 +129,135 @@ example {
             "last_page": 12,
             "per_page": 10,
             "total": 117,
+            "data": []
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: List: Multi komoditas (comma-separated)
+
+  request: {
+    url: {{baseUrl}}/mobileapps/pestisida?komoditas=cabai,padi,jagung&per_page=5
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "List pestisida",
+          "data": {
+            "snapshot_date": "2026-05-26",
+            "current_page": 1,
+            "last_page": 548,
+            "per_page": 5,
+            "total": 2739,
+            "data": [
+              { "merek_id": 98, "merek_pestisida": "AGAFENA 230 EC", "komoditas_list": ["Cabai"], "jenis_sasaran_list": ["hama trips"], "sasaran_count": 1 },
+              { "merek_id": 12, "merek_pestisida": "AMISTAR 250 SC",  "komoditas_list": ["Padi", "Cabai"], "jenis_sasaran_list": ["antraknosa"], "sasaran_count": 2 }
+            ]
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: List: Multi komoditas (array syntax)
+
+  request: {
+    url: {{baseUrl}}/mobileapps/pestisida?komoditas[]=cabai&komoditas[]=padi&per_page=5
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "List pestisida",
+          "data": {
+            "snapshot_date": "2026-05-26",
+            "current_page": 1,
+            "last_page": 456,
+            "per_page": 5,
+            "total": 2277,
+            "data": []
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: List: Multi komoditas + jenis_sasaran (cross-column AND)
+
+  request: {
+    url: {{baseUrl}}/mobileapps/pestisida?komoditas=cabai,padi&jenis_sasaran=trips&per_page=5
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "List pestisida",
+          "data": {
+            "snapshot_date": "2026-05-26",
+            "current_page": 1,
+            "last_page": 52,
+            "per_page": 5,
+            "total": 258,
             "data": []
           }
         }
