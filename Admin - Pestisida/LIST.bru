@@ -30,9 +30,9 @@ docs {
   **Query params:**
   - `page` (int, default 1)
   - `per_page` (int, default 25, max 100)
-  - `q` (string) — matches merek / bahan aktif / no. pendaftaran / pemegang
-  - `komoditas` (string) — substring match
-  - `jenis_sasaran` (string) — substring match
+  - `q` (string) — matches merek / bahan aktif / no. pendaftaran / pemegang. **Case-insensitive** (since 2026-05-27)
+  - `komoditas` (string) — substring match, **case-insensitive**
+  - `jenis_sasaran` (string) — substring match, **case-insensitive**
   - `merek_id` (int) — exact match for a single brand
   - `sort` (enum, default `akhir_izin_desc`) — one of `akhir_izin_desc`, `akhir_izin_asc`, `nama_asc`, `nama_desc`
 }

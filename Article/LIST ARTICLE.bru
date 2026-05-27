@@ -25,4 +25,6 @@ docs {
   - `embed` — object: `{ provider, original_url, embed_url, embed_html, thumbnail_url, title, author_name }`
 
   Bila bukan post sosial, `source_url`/`embed_provider` bernilai `null` dan `embed` adalah `null`.
+
+  **`metadata` (sejak 2026-05-27):** JSON object opsional untuk extras per-kategori (nullable). Untuk post Tanaman, isinya `nama_latin`, `kategori_tanaman`, `musim_tanam`, `hari_panen_min/max`, `tingkat_kesulitan`, `kebutuhan_sinar`, `kondisi_tumbuh`, `hama_umum`, dsb. Lihat docs **LIST ARTICLE BY CATEGORY** untuk shape lengkap.
 }

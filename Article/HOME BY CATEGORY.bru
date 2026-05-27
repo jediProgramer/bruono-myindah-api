@@ -15,7 +15,7 @@ headers {
 }
 
 docs {
-  Public endpoint used by the homepage. Returns every category that has at least one post, with the latest **5 posts** attached to each (sorted by `id` asc). Posts inside a section include the same fields as any other public post — including the synthesized `embed` object when `embed_provider` is set.
+  Public endpoint used by the homepage. Returns every category that has at least one post, with the latest **5 posts** attached to each (sorted by `id` asc). Posts inside a section include the same fields as any other public post — including the synthesized `embed` object when `embed_provider` is set, and the new `metadata` JSON object (since 2026-05-27).
 
   Use this to render the homepage as a sectioned feed (one section per category).
 }
@@ -106,14 +106,21 @@ example {
               "slug": "tanaman",
               "posts": [
                 {
-                  "id": 7,
-                  "title": "Padi",
-                  "slug": "padi",
+                  "id": 14,
+                  "title": "Cabai Rawit",
+                  "slug": "cabai-rawit",
                   "category_id": 6,
-                  "image": "padi.jpg",
-                  "content": "Sumber karbohidrat utama. Ditanam serentak di sawah irigasi maupun tadah hujan; siklus tanam ±100–120 hari.",
+                  "image": "https://webapi.myindah-app.com/storage/posts/cabai-rawit.jpg",
+                  "content": "Sayuran rempah dengan permintaan tinggi sepanjang tahun.",
                   "source_url": null,
                   "embed_provider": null,
+                  "metadata": {
+                    "nama_latin": "Capsicum frutescens",
+                    "kategori_tanaman": "sayuran",
+                    "musim_tanam": "sepanjang_tahun",
+                    "hari_panen_min": 75,
+                    "hari_panen_max": 90
+                  },
                   "embed": null,
                   "category": { "id": 6, "name": "Tanaman" }
                 }

@@ -15,7 +15,9 @@ settings {
 }
 
 docs {
-  # **GET POST**
-  
-  Menampilkan data artikel dengan nama **POST** secara keseluruhan menggunakan method **GET**
+  # **GET POSTS HOME (top 6, all categories)**
+
+  Menampilkan 6 post terbaru lintas kategori untuk halaman home.
+
+  Setiap item include `metadata` (JSON object, since 2026-05-27 — extras per-kategori, nullable) di samping `source_url`/`embed_provider`/`embed` yang sudah ada untuk post sosial.
 }

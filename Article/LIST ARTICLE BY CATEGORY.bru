@@ -34,6 +34,24 @@ docs {
   - `3` Resep
   - `4` Social Media
   - `6` Tanaman   — seeded with 23 Tanaman Pangan + Hortikultura entries (each with a real Wikipedia photo)
+
+  **`metadata` field (since 2026-05-27):**
+  Optional JSON object for category-specific structured extras. Null on most posts. For Tanaman, expected shape:
+  ```
+  {
+    "nama_latin": "Capsicum frutescens",
+    "kategori_tanaman": "sayuran",         // sayuran | buah | herba | palawija | biji-bijian
+    "musim_tanam": "sepanjang_tahun",      // hujan | kemarau | sepanjang_tahun
+    "hari_panen_min": 75,
+    "hari_panen_max": 90,
+    "tingkat_kesulitan": "sedang",         // mudah | sedang | sulit
+    "kebutuhan_sinar": "penuh",            // penuh | sebagian | teduh
+    "kondisi_tumbuh": { "ph_min": 5.5, "ph_max": 6.8, "suhu_min": 18, "suhu_max": 30 },
+    "hama_umum": ["kutu daun", "thrips"],
+    "gallery": ["cabai-1.jpg", "cabai-2.jpg"]
+  }
+  ```
+  Other categories may use their own keys (e.g. Resep can carry nutrition; Tips can stay null). Mobile reads `post.metadata.xxx` directly — array cast applied server-side.
 }
 
 example {
@@ -63,7 +81,7 @@ example {
       content: '''
         {
           "success": true,
-          "message": "List Data Posts By Category Id",
+          "message": "List Data Posts",
           "data": {
             "current_page": 1,
             "per_page": 10,
@@ -71,27 +89,40 @@ example {
             "last_page": 3,
             "data": [
               {
-                "id": 7,
-                "title": "Padi",
-                "slug": "padi",
-                "image": "padi.jpg",
-                "content": "Sumber karbohidrat utama. Ditanam serentak di sawah irigasi maupun tadah hujan; siklus tanam ±100–120 hari.",
+                "id": 29,
+                "title": "Nanas",
+                "slug": "nanas",
+                "image": "https://webapi.myindah-app.com/storage/posts/nanas.jpg",
+                "content": "Tanaman buah tropis. Sentra: Subang, Lampung, Kediri.",
                 "category_id": 6,
                 "user_id": 1,
                 "source_url": null,
                 "embed_provider": null,
+                "metadata": null,
                 "embed": null,
                 "user": { "id": 1, "name": "Administrator" },
                 "category": { "id": 6, "name": "Tanaman" },
-                "created_at": "2026-05-26T13:55:00.000000Z"
+                "created_at": "2026-05-26T13:53:02.000000Z",
+                "updated_at": "2026-05-26T13:53:04.000000Z"
               },
               {
-                "id": 8,
-                "title": "Jagung",
-                "slug": "jagung",
-                "image": "jagung.jpg",
-                "content": "Sumber karbohidrat alternatif sekaligus pakan ternak. Tahan kering, panen ±90–110 hari setelah tanam.",
+                "id": 14,
+                "title": "Cabai Rawit",
+                "slug": "cabai-rawit",
+                "image": "https://webapi.myindah-app.com/storage/posts/cabai-rawit.jpg",
+                "content": "Sayuran rempah dengan permintaan tinggi sepanjang tahun.",
                 "category_id": 6,
+                "metadata": {
+                  "nama_latin": "Capsicum frutescens",
+                  "kategori_tanaman": "sayuran",
+                  "musim_tanam": "sepanjang_tahun",
+                  "hari_panen_min": 75,
+                  "hari_panen_max": 90,
+                  "tingkat_kesulitan": "sedang",
+                  "kebutuhan_sinar": "penuh",
+                  "kondisi_tumbuh": { "ph_min": 5.5, "ph_max": 6.8, "suhu_min": 18, "suhu_max": 30 },
+                  "hama_umum": ["thrips", "kutu daun"]
+                },
                 "category": { "id": 6, "name": "Tanaman" }
               }
             ]
