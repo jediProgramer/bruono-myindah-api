@@ -33,24 +33,41 @@ docs {
   - `2` Iklim
   - `3` Resep
   - `4` Social Media
-  - `6` Tanaman   — seeded with 23 Tanaman Pangan + Hortikultura entries (each with a real Wikipedia photo)
+  - `6` Tanaman          — 23 Tanaman Pangan + Hortikultura entries (each with real Wikipedia photo + metadata)
+  - `7` Hama & Penyakit  — 25 entries (14 hama + 11 penyakit), each with real Wikipedia photo + metadata
 
   **`metadata` field (since 2026-05-27):**
-  Optional JSON object for category-specific structured extras. Null on most posts. For Tanaman, expected shape:
+  Optional JSON object for category-specific structured extras. Null on most posts.
+
+  **For Tanaman (category_id=6):**
   ```
   {
     "nama_latin": "Capsicum frutescens",
-    "kategori_tanaman": "sayuran",         // sayuran | buah | herba | palawija | biji-bijian
+    "kategori_tanaman": "sayuran",         // pangan | sayuran | buah | herba | palawija
     "musim_tanam": "sepanjang_tahun",      // hujan | kemarau | sepanjang_tahun
     "hari_panen_min": 75,
     "hari_panen_max": 90,
     "tingkat_kesulitan": "sedang",         // mudah | sedang | sulit
     "kebutuhan_sinar": "penuh",            // penuh | sebagian | teduh
-    "kondisi_tumbuh": { "ph_min": 5.5, "ph_max": 6.8, "suhu_min": 18, "suhu_max": 30 },
-    "hama_umum": ["kutu daun", "thrips"],
-    "gallery": ["cabai-1.jpg", "cabai-2.jpg"]
+    "kondisi_tumbuh": { "ph_min": 5.5, "ph_max": 6.8, "suhu_min": 18, "suhu_max": 30, "mdpl_min": 0, "mdpl_max": 1000 },
+    "hama_umum": ["thrips", "kutu daun"],
+    "catatan_panen": "Mulai berbuah 3-4 tahun setelah tanam"  // optional, for slow fruit trees
   }
   ```
+
+  **For Hama & Penyakit (category_id=7):**
+  ```
+  {
+    "nama_latin": "Pyricularia oryzae",
+    "tipe": "penyakit",                    // hama | penyakit  (drives Hama/Penyakit sub-tab filter)
+    "kategori_organisme": "jamur",         // serangga | tungau | tikus | siput | nematoda | jamur | virus | bakteri
+    "tingkat_keparahan": "berat",          // ringan | sedang | berat
+    "tanaman_inang": ["Padi"],             // host crop display names (match Tanaman titles when possible)
+    "gejala": "Bercak belah ketupat …",    // symptoms (Indonesian)
+    "pengendalian": "Varietas tahan; fungisida sistemik (trisiklazol) saat awal gejala."
+  }
+  ```
+
   Other categories may use their own keys (e.g. Resep can carry nutrition; Tips can stay null). Mobile reads `post.metadata.xxx` directly — array cast applied server-side.
 }
 
@@ -124,6 +141,84 @@ example {
                   "hama_umum": ["thrips", "kutu daun"]
                 },
                 "category": { "id": 6, "name": "Tanaman" }
+              }
+            ]
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Hama & Penyakit — first page
+
+  request: {
+    url: {{baseUrl}}/public/posts/category/7?page=1
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "List Data Posts",
+          "data": {
+            "current_page": 1,
+            "per_page": 10,
+            "total": 25,
+            "last_page": 3,
+            "data": [
+              {
+                "id": 47,
+                "title": "Thrips",
+                "slug": "thrips",
+                "image": "https://webapi.myindah-app.com/storage/posts/thrips.jpg",
+                "content": "Daun keriting ke atas (cupping) berwarna keperakan; bunga rontok; vektor virus kuning cabai.",
+                "category_id": 7,
+                "metadata": {
+                  "nama_latin": "Thrips parvispinus",
+                  "tipe": "hama",
+                  "kategori_organisme": "serangga",
+                  "tingkat_keparahan": "berat",
+                  "tanaman_inang": ["Cabai Merah", "Cabai Rawit", "Bawang Merah"],
+                  "gejala": "Daun keriting ke atas (cupping) berwarna keperakan; bunga rontok; vektor virus kuning cabai.",
+                  "pengendalian": "Perangkap kuning lengket; mulsa plastik perak; rotasi insektisida (spinetoram, abamektin, fipronil)."
+                },
+                "category": { "id": 7, "name": "Hama & Penyakit" }
+              },
+              {
+                "id": 38,
+                "title": "Blast Padi",
+                "slug": "blast-padi",
+                "image": "https://webapi.myindah-app.com/storage/posts/blast-padi.jpg",
+                "content": "Bercak belah ketupat tepi coklat kehitaman pusat abu-abu pada daun…",
+                "category_id": 7,
+                "metadata": {
+                  "nama_latin": "Pyricularia oryzae",
+                  "tipe": "penyakit",
+                  "kategori_organisme": "jamur",
+                  "tingkat_keparahan": "berat",
+                  "tanaman_inang": ["Padi"],
+                  "gejala": "Bercak belah ketupat tepi coklat kehitaman pusat abu-abu pada daun; leher malai membusuk (neck blast) menyebabkan gagal panen hingga 80%.",
+                  "pengendalian": "Tanam varietas tahan (Inpari Blas, Cigeulis); hindari over-nitrogen; fungisida sistemik (trisiklazol, isoprotiolan) saat awal gejala."
+                },
+                "category": { "id": 7, "name": "Hama & Penyakit" }
               }
             ]
           }
