@@ -17,6 +17,7 @@ params:query {
   komoditas: ~
   jenis_sasaran: ~
   type: ~
+  target_type: ~
   sort: akhir_izin_desc
 }
 
@@ -38,10 +39,19 @@ docs {
     Logic is OR within column (returns rows matching *any* of the values).
   - `jenis_sasaran` — substring match, **case-insensitive**, **multi-value** (same formats + OR semantics as `komoditas`)
   - `type` (enum, **multi-value**, sejak 2026-05-27) — derived from `jenis_pestisida` prefix. Accepts single, comma-separated (`?type=insektisida,fungisida`), or array (`?type[]=insektisida&type[]=fungisida`). Valid keys: `insektisida`, `fungisida`, `herbisida`, `akarisida`, `rodentisida`, `nematisida`, `moluskisida`, `bakterisida`, `zpt`, `pupuk`, `lainnya`. Invalid keys return 422.
-  - When `komoditas`, `jenis_sasaran`, and `type` are sent together they're AND'd across columns (each column's values OR'd internally).
+  - `target_type` (enum, **multi-value**, sejak 2026-05-27) — petani-facing grouping that rolls up `type` into broader buckets. Valid keys: `hama`, `penyakit`, `gulma`, `zat_pengatur`, `lainnya`. Single/comma/array forms all work. Mapping:
+    - `hama` ⇐ insektisida + akarisida + rodentisida + nematisida + moluskisida
+    - `penyakit` ⇐ fungisida + bakterisida
+    - `gulma` ⇐ herbisida
+    - `zat_pengatur` ⇐ zpt + pupuk
+    - `lainnya` ⇐ pesticide type `lainnya`
+    Invalid keys return 422. Use this for the top-level Hama / Penyakit / Gulma tab in the mobile UI.
+  - When `komoditas`, `jenis_sasaran`, `type`, and `target_type` are sent together they're AND'd across columns (each column's values OR'd internally).
   - `sort` (enum, default `akhir_izin_desc`) — one of `akhir_izin_desc`, `akhir_izin_asc`, `nama_asc`, `nama_desc`
 
   **Response field `type` (sejak 2026-05-27):** Every row in `data[]` includes a derived `type` field (same enum as above) alongside the verbose `jenis_pestisida`. Use `type` for chip filters / icons; show `jenis_pestisida` for the full label.
+
+  **Response field `target_types[]` (sejak 2026-05-27):** Every card includes a `target_types` array — the union of `target_type` values across that merek's sasaran rows. Most cards have a single entry (e.g. `["hama"]`), but combo products can have multiple (e.g. `["hama", "penyakit"]`). Use this to render Hama/Penyakit/Gulma badges on the card.
 }
 
 example {
@@ -85,6 +95,7 @@ example {
                 "bahan_aktif": "abamektin (abamectin): 30 g/l klorfenapir (chlorfenapyr): 200 g/l",
                 "jenis_pestisida": "Insektisida racun kontak dan lambung berbentuk pekatan yang dapat diemulsikan",
                 "type": "insektisida",
+                "target_types": ["hama"],
                 "pemegang_pendaftaran": "PT Agro Guna Makmur",
                 "nomor_pendaftaran": "RI. 01010120155286",
                 "tanggal_akhir_izin": "20 Januari 2031",
@@ -309,6 +320,97 @@ example {
             "per_page": 5,
             "total": 258,
             "data": []
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: List: Filter by target_type=penyakit
+
+  request: {
+    url: {{baseUrl}}/mobileapps/pestisida?target_type=penyakit&per_page=3
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "List pestisida",
+          "data": {
+            "snapshot_date": "2026-05-26",
+            "current_page": 1,
+            "last_page": 343,
+            "per_page": 3,
+            "total": 1029,
+            "data": [
+              { "merek_id": 412, "merek_pestisida": "ABITA 200 EW",          "type": "fungisida", "target_types": ["penyakit"], "sasaran_count": 1 },
+              { "merek_id": 877, "merek_pestisida": "AGROSIN 30 WP",         "type": "fungisida", "target_types": ["penyakit"], "sasaran_count": 1 },
+              { "merek_id": 154, "merek_pestisida": "ANDABLAST 125/400 SC",  "type": "fungisida", "target_types": ["penyakit"], "sasaran_count": 3 }
+            ]
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: List: Multi target_type (hama + penyakit)
+
+  request: {
+    url: {{baseUrl}}/mobileapps/pestisida?target_type=hama,penyakit&per_page=2
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "List pestisida",
+          "data": {
+            "snapshot_date": "2026-05-26",
+            "current_page": 1,
+            "last_page": 1000,
+            "per_page": 2,
+            "total": 2000,
+            "data": [
+              { "merek_id": 98, "merek_pestisida": "AGAFENA 230 EC", "type": "insektisida", "target_types": ["hama"],    "sasaran_count": 1 },
+              { "merek_id": 12, "merek_pestisida": "AMISTAR 250 SC", "type": "fungisida",   "target_types": ["penyakit"], "sasaran_count": 2 }
+            ]
           }
         }
       '''

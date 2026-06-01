@@ -19,6 +19,7 @@ docs {
   - `komoditas` — distinct komoditas values
   - `jenis_sasaran` — distinct jenis_sasaran values
   - `types` (sejak 2026-05-27) — full enum of pesticide types with row count per type in the current snapshot. Use this for chip badges ("Insektisida (4055)", "Fungisida (1889)"). Keys are stable; counts refresh with each snapshot.
+  - `target_types` (sejak 2026-05-27) — petani-facing target grouping with row counts: `hama`, `penyakit`, `gulma`, `zat_pengatur`, `lainnya`. Derived from the `type` enum (insektisida/akarisida/rodentisida/nematisida/moluskisida → hama; fungisida/bakterisida → penyakit; herbisida → gulma; zpt/pupuk → zat_pengatur). Use for the top-level Hama/Penyakit/Gulma tab in the mobile UI.
 
   Use these to populate the Hama filter UI.
 }
@@ -81,6 +82,13 @@ example {
               { "key": "zpt",         "count": 295 },
               { "key": "pupuk",       "count": 0 },
               { "key": "lainnya",     "count": 1633 }
+            ],
+            "target_types": [
+              { "key": "hama",         "count": 4628 },
+              { "key": "penyakit",     "count": 1949 },
+              { "key": "gulma",        "count": 11850 },
+              { "key": "zat_pengatur", "count": 295 },
+              { "key": "lainnya",      "count": 1266 }
             ]
           }
         }

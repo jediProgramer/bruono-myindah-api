@@ -17,6 +17,7 @@ params:query {
   komoditas: ~
   jenis_sasaran: ~
   type: ~
+  target_type: ~
   merek_id: ~
   sort: akhir_izin_desc
 }
@@ -35,7 +36,8 @@ docs {
   - `komoditas` — substring match, **case-insensitive**, **multi-value** (since 2026-05-27). Accepts single, comma-separated (`?komoditas=cabai,padi`), or array (`?komoditas[]=cabai&komoditas[]=padi`). OR within column.
   - `jenis_sasaran` — substring match, **case-insensitive**, **multi-value** (same formats + OR semantics as `komoditas`)
   - `type` (enum, **multi-value**, since 2026-05-27) — derived from `jenis_pestisida` prefix. Accepts single, comma-separated, or array. Valid: `insektisida`, `fungisida`, `herbisida`, `akarisida`, `rodentisida`, `nematisida`, `moluskisida`, `bakterisida`, `zpt`, `pupuk`, `lainnya`. Unknown values are silently ignored (admin permissively filtered, mobile returns 422).
-  - When `komoditas`, `jenis_sasaran`, and `type` are sent together they're AND'd across columns.
+  - `target_type` (enum, **multi-value**, since 2026-05-27) — petani-facing rollup: `hama` (insektisida+akarisida+rodentisida+nematisida+moluskisida) / `penyakit` (fungisida+bakterisida) / `gulma` (herbisida) / `zat_pengatur` (zpt+pupuk) / `lainnya`. Same formats; unknown values silently ignored.
+  - When `komoditas`, `jenis_sasaran`, `type`, and `target_type` are sent together they're AND'd across columns.
   - `merek_id` (int) — exact match for a single brand
   - `sort` (enum, default `akhir_izin_desc`) — one of `akhir_izin_desc`, `akhir_izin_asc`, `nama_asc`, `nama_desc`
 
