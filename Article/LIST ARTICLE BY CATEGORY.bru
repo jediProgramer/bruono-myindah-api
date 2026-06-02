@@ -12,6 +12,7 @@ get {
 
 params:query {
   page: 1
+  tipe: ~
 }
 
 headers {
@@ -27,6 +28,14 @@ docs {
 
   **URL params:**
   - `{category_id}` — numeric id (see `/public/category_list` for the full list).
+
+  **Query params:**
+  - `page` (int, default 1) — pagination, 10 per page.
+  - `tipe` (string, optional, **sejak 2026-06-01**) — filter by `metadata.tipe`. Accepts:
+    - single: `?tipe=hama`
+    - comma-separated: `?tipe=hama,penyakit`
+    - array: `?tipe[]=hama&tipe[]=penyakit`
+    Only `hama` and `penyakit` are valid; unknown values are silently dropped (returns all rows). Use this to power the Hama / Penyakit sub-tabs in the mobile UI (category_id=7).
 
   **Known categories on prod (id → name):**
   - `1` Tips
@@ -281,6 +290,167 @@ example {
                 "category": { "id": 4, "name": "Social Media" }
               }
             ]
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Hama & Penyakit — filter Hama only
+
+  request: {
+    url: {{baseUrl}}/public/posts/category/7?tipe=hama&page=1
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "List Data Posts",
+          "data": {
+            "current_page": 1,
+            "per_page": 10,
+            "total": 14,
+            "last_page": 2,
+            "data": [
+              {
+                "id": 53,
+                "title": "Kepik Hijau",
+                "slug": "kepik-hijau",
+                "image": "https://webapi.myindah-app.com/storage/posts/kepik-hijau.jpg",
+                "content": "Hama pengisap polong/kedelai.",
+                "category_id": 7,
+                "metadata": {
+                  "nama_latin": "Nezara viridula",
+                  "tipe": "hama",
+                  "kategori_organisme": "serangga",
+                  "tingkat_keparahan": "sedang",
+                  "tanaman_inang": ["Kedelai", "Kacang Tanah"],
+                  "gejala": "Polong kerdil, biji hampa atau bernoda hitam.",
+                  "pengendalian": "Insektisida sistemik saat populasi tinggi; tanaman perangkap."
+                },
+                "category": { "id": 7, "name": "Hama & Penyakit" }
+              }
+            ]
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Hama & Penyakit — filter Penyakit only
+
+  request: {
+    url: {{baseUrl}}/public/posts/category/7?tipe=penyakit&page=1
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "List Data Posts",
+          "data": {
+            "current_page": 1,
+            "per_page": 10,
+            "total": 11,
+            "last_page": 2,
+            "data": [
+              {
+                "id": 64,
+                "title": "Penyakit Kuning Cabai",
+                "slug": "penyakit-kuning-cabai",
+                "image": "https://webapi.myindah-app.com/storage/posts/penyakit-kuning-cabai.jpg",
+                "content": "Virus yang ditularkan kutu kebul.",
+                "category_id": 7,
+                "metadata": {
+                  "nama_latin": "Pepper yellow leaf curl virus (Begomovirus)",
+                  "tipe": "penyakit",
+                  "kategori_organisme": "virus",
+                  "tingkat_keparahan": "berat",
+                  "tanaman_inang": ["Cabai Merah", "Cabai Rawit", "Tomat"],
+                  "gejala": "Daun muda kuning keriting ke atas, ukuran mengecil…",
+                  "pengendalian": "Sanitasi gulma; insektisida sistemik vs kutu kebul."
+                },
+                "category": { "id": 7, "name": "Hama & Penyakit" }
+              }
+            ]
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Hama & Penyakit — both (tipe=hama,penyakit)
+
+  request: {
+    url: {{baseUrl}}/public/posts/category/7?tipe=hama,penyakit&page=1
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "List Data Posts",
+          "data": {
+            "current_page": 1,
+            "per_page": 10,
+            "total": 25,
+            "last_page": 3,
+            "data": []
           }
         }
       '''
