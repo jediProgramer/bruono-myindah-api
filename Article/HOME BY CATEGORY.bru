@@ -18,6 +18,8 @@ docs {
   Public endpoint used by the homepage. Returns every category that has at least one post, with the latest **5 posts** attached to each (sorted by `id` asc). Posts inside a section include the same fields as any other public post — including the synthesized `embed` object when `embed_provider` is set, and the new `metadata` JSON object (since 2026-05-27).
 
   Use this to render the homepage as a sectioned feed (one section per category).
+
+  **Per-section `source` (sejak 2026-06-07):** each section in `data[]` includes its own `source = {name, url}` when known (resep → "Kurasi BRIN"; tanaman → "Satu Data Pertanian"; hama-penyakit → "Wikipedia Commons"). `null` otherwise. Render under the section header.
 }
 
 example {

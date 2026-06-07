@@ -29,6 +29,8 @@ docs {
   - `provinsi` — `dki-jakarta`, `jawa-barat`, `di-yogyakarta`, `jawa-timur` (slug)
   - `jenis_pasar` — `tradisional` (default), `modern`, `pedagang-besar`, `produsen`
   - `komoditas` — `beras`, `daging-ayam`, `daging-sapi`, `telur-ayam`, `bawang-merah`, `bawang-putih`, `cabai-merah`, `cabai-rawit`, `minyak-goreng`, `gula-pasir`
+
+  **Response field `source` (sejak 2026-06-07):** top-level `data.source = {name, url}` upstream attribution. `name: "PIHPS — Pusat Informasi Harga Pangan Strategis Nasional, Bank Indonesia"`, `url: "https://www.bi.go.id/hargapangan"`. Render as "Sumber data: PIHPS — Bank Indonesia" with tappable link.
 }
 
 example {
@@ -60,6 +62,10 @@ example {
           "success": true,
           "message": "Harga pangan hari ini",
           "data": {
+            "source": {
+              "name": "PIHPS — Pusat Informasi Harga Pangan Strategis Nasional, Bank Indonesia",
+              "url":  "https://www.bi.go.id/hargapangan"
+            },
             "tanggal": "2026-05-21",
             "jenis_pasar": "Pasar Tradisional",
             "items": [
@@ -105,6 +111,10 @@ example {
           "success": true,
           "message": "Harga pangan hari ini",
           "data": {
+            "source": {
+              "name": "PIHPS — Pusat Informasi Harga Pangan Strategis Nasional, Bank Indonesia",
+              "url":  "https://www.bi.go.id/hargapangan"
+            },
             "tanggal": "2026-05-21",
             "jenis_pasar": "Pasar Tradisional",
             "items": [

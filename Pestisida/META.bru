@@ -20,6 +20,7 @@ docs {
   - `jenis_sasaran` — distinct jenis_sasaran values
   - `types` (sejak 2026-05-27) — full enum of pesticide types with row count per type in the current snapshot. Use this for chip badges ("Insektisida (4055)", "Fungisida (1889)"). Keys are stable; counts refresh with each snapshot.
   - `target_types` (sejak 2026-05-27) — petani-facing target grouping with row counts: `hama`, `penyakit`, `gulma`, `zat_pengatur`, `lainnya`. Derived from the `type` enum (insektisida/akarisida/rodentisida/nematisida/moluskisida → hama; fungisida/bakterisida → penyakit; herbisida → gulma; zpt/pupuk → zat_pengatur). Use for the top-level Hama/Penyakit/Gulma tab in the mobile UI.
+  - `source` (sejak 2026-06-07) — `{name, url}` upstream attribution. For pestisida → `name: "SIMPES 2.0 — Direktorat Pupuk dan Pestisida, Kementerian Pertanian RI"`, `url: "https://pestisida.id/simpes2psp2026/"`. Render at the bottom of the screen as "Sumber data: <name>" with the URL as a tappable link.
 
   Use these to populate the Hama filter UI.
 }
@@ -53,6 +54,10 @@ example {
           "success": true,
           "message": "Meta pestisida",
           "data": {
+            "source": {
+              "name": "SIMPES 2.0 — Direktorat Pupuk dan Pestisida, Kementerian Pertanian RI",
+              "url":  "https://pestisida.id/simpes2psp2026/"
+            },
             "snapshot_date": "2026-05-26",
             "komoditas": [
               "Bawang merah",

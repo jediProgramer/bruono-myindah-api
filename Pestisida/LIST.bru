@@ -52,6 +52,8 @@ docs {
   **Response field `type` (sejak 2026-05-27):** Every row in `data[]` includes a derived `type` field (same enum as above) alongside the verbose `jenis_pestisida`. Use `type` for chip filters / icons; show `jenis_pestisida` for the full label.
 
   **Response field `target_types[]` (sejak 2026-05-27):** Every card includes a `target_types` array — the union of `target_type` values across that merek's sasaran rows. Most cards have a single entry (e.g. `["hama"]`), but combo products can have multiple (e.g. `["hama", "penyakit"]`). Use this to render Hama/Penyakit/Gulma badges on the card.
+
+  **Response field `source` (sejak 2026-06-07):** Top-level `data.source = {name, url}` upstream attribution. `name: "SIMPES 2.0 — Direktorat Pupuk dan Pestisida, Kementerian Pertanian RI"`, `url: "https://pestisida.id/simpes2psp2026/"`. Render at the bottom of the screen as "Sumber data: <name>".
 }
 
 example {
@@ -83,6 +85,10 @@ example {
           "success": true,
           "message": "List pestisida",
           "data": {
+            "source": {
+              "name": "SIMPES 2.0 — Direktorat Pupuk dan Pestisida, Kementerian Pertanian RI",
+              "url":  "https://pestisida.id/simpes2psp2026/"
+            },
             "snapshot_date": "2026-05-26",
             "current_page": 1,
             "last_page": 300,

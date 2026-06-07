@@ -78,6 +78,8 @@ docs {
   ```
 
   Other categories may use their own keys (e.g. Resep can carry nutrition; Tips can stay null). Mobile reads `post.metadata.xxx` directly — array cast applied server-side.
+
+  **Response field `source` (sejak 2026-06-07):** when the category has known upstream attribution (currently `resep`, `tanaman`, `hama-penyakit`, `social-media` doesn't), the response includes a top-level `source = {name, url}` between `message` and `data`. Categories without a known source (e.g. Tips, Iklim) omit the field entirely. Render the source as "Sumber data: <name>" at the screen footer.
 }
 
 example {

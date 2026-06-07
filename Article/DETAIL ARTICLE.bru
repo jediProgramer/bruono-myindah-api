@@ -22,4 +22,5 @@ docs {
   Response include semua field standar plus:
   - `source_url`, `embed_provider`, `embed` — untuk post sosial media
   - **`metadata`** (sejak 2026-05-27) — JSON object opsional untuk extras per-kategori. Untuk Tanaman: `nama_latin`, `kategori_tanaman`, `musim_tanam`, `hari_panen_min/max`, `tingkat_kesulitan`, `kebutuhan_sinar`, `kondisi_tumbuh`, `hama_umum`. Lihat docs **LIST ARTICLE BY CATEGORY** untuk shape lengkap. Null untuk post yang belum diisi.
+  - **`source`** (sejak 2026-06-07) — top-level `{name, url}` upstream attribution, hadir bila kategori post punya sumber yang dikenal (resep / tanaman / hama-penyakit). Field di luar `data`. Untuk kategori tanpa sumber dikenal, field di-omit.
 }

@@ -23,6 +23,8 @@ docs {
   Response includes derived `type` field (sejak 2026-05-27) — one of `insektisida`, `fungisida`, `herbisida`, `akarisida`, `rodentisida`, `nematisida`, `moluskisida`, `bakterisida`, `zpt`, `pupuk`, `lainnya`. Same enum as `?type=` filter on LIST.
 
   Response also includes derived `target_types[]` array (sejak 2026-05-27) — union of `hama` / `penyakit` / `gulma` / `zat_pengatur` / `lainnya` across the merek's applications. Same enum as `?target_type=` filter on LIST.
+
+  Response also includes top-level `source` (sejak 2026-06-07) — `{name, url}` upstream attribution pointing at SIMPES 2.0 / pestisida.id.
 }
 
 example {
@@ -54,6 +56,10 @@ example {
           "success": true,
           "message": "Detail pestisida",
           "data": {
+            "source": {
+              "name": "SIMPES 2.0 — Direktorat Pupuk dan Pestisida, Kementerian Pertanian RI",
+              "url":  "https://pestisida.id/simpes2psp2026/"
+            },
             "snapshot_date": "2026-05-26",
             "merek_id": 98,
             "merek_pestisida": "AGAFENA 230 EC",
