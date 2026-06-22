@@ -25,6 +25,8 @@ docs {
 
   **Path params:**
   - `{slug}` (string, required) — recipe slug, e.g. `gado-gado-sayur`
+
+  **Response field `video_url` (sejak 2026-06-08):** optional URL to a cooking video (typically YouTube). Plain string, **no URL validation** — admin can paste share URLs with tracker params like `?si=...`, `?utm_source=...`. Returned as-is. `null` when not set. Mobile extracts the video id and renders via `youtube_player_flutter` (recommended for youtube.com / youtu.be URLs) or opens in browser/WebView as fallback.
 }
 
 example {
@@ -69,6 +71,7 @@ example {
             "meal_times": ["siang"],
             "ingredients": "200g tauge\n100g kangkung\n2 buah tahu\n3 sdm bumbu kacang\n2 telur rebus\nLontong / kentang rebus secukupnya",
             "instructions": "1. Rebus sayuran (tauge, kangkung) hingga matang\n2. Tumbuk bumbu kacang dengan sedikit air\n3. Tata sayur, tahu, telur, dan lontong di piring\n4. Siram dengan bumbu kacang. Sajikan",
+            "video_url": "https://www.youtube.com/watch?v=Fyzz8QV35FE",
             "suitable_meal_times": ["siang", "malam"],
             "suitable_weather": ["panas-terik", "cerah-normal", "lembap"]
           }

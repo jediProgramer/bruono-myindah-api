@@ -25,6 +25,7 @@ body:multipart-form {
   tags: sayur,tahu/tempe,bumbu kacang
   ingredients: 200g tauge\n100g kangkung\n2 buah tahu
   instructions: 1. Rebus sayuran\n2. Tumbuk bumbu kacang\n3. Sajikan
+  video_url: ~
   image: ~
 }
 
@@ -46,6 +47,7 @@ docs {
   - `tags` (string, optional) — Comma-separated
   - `ingredients` (text, optional) — Multi-line
   - `instructions` (text, optional) — Multi-line
+  - `video_url` (string, optional, sejak 2026-06-08) — YouTube / TikTok / Instagram URL; stored as plain text (no URL validation, no embed processing) so admin can paste share URLs with tracker params like `?si=...`, `?utm_source=...`, `?feature=share`, etc. Max 2048 chars.
   - `image` (file, optional) — JPG/PNG, max 2MB
 }
 
