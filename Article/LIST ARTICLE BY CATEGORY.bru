@@ -13,6 +13,7 @@ get {
 params:query {
   page: 1
   tipe: ~
+  sort: ~
 }
 
 headers {
@@ -36,6 +37,7 @@ docs {
     - comma-separated: `?tipe=hama,penyakit`
     - array: `?tipe[]=hama&tipe[]=penyakit`
     Only `hama` and `penyakit` are valid; unknown values are silently dropped (returns all rows). Use this to power the Hama / Penyakit sub-tabs in the mobile UI (category_id=7).
+  - `sort` (enum, optional, default `terbaru`, **sejak 2026-06-08**) — one of `nama_asc` (A→Z, case-insensitive), `nama_desc` (Z→A), `terbaru` (created_at desc, default), `terlama` (created_at asc). Invalid values silently fall back to `terbaru`.
 
   **Known categories on prod (id → name):**
   - `1` Tips
@@ -453,6 +455,56 @@ example {
             "total": 25,
             "last_page": 3,
             "data": []
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Hama — sorted alphabetically (A→Z)
+
+  request: {
+    url: {{baseUrl}}/public/posts/category/7?tipe=hama&sort=nama_asc&page=1
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "List Data Posts",
+          "source": {
+            "name": "Kurasi MyIndah Diet · Foto: Wikipedia Commons",
+            "url":  "https://id.wikipedia.org"
+          },
+          "data": {
+            "current_page": 1,
+            "per_page": 10,
+            "total": 14,
+            "last_page": 2,
+            "data": [
+              { "id": 53, "title": "Kepik Hijau",   "slug": "kepik-hijau",   "metadata": { "tipe": "hama" } },
+              { "id": 51, "title": "Kutu Daun",     "slug": "kutu-daun",     "metadata": { "tipe": "hama" } },
+              { "id": 50, "title": "Kutu Putih",    "slug": "kutu-putih",    "metadata": { "tipe": "hama" } },
+              { "id": 48, "title": "Lalat Buah",    "slug": "lalat-buah",    "metadata": { "tipe": "hama" } }
+            ]
           }
         }
       '''
