@@ -1,0 +1,481 @@
+meta {
+  name: LIST
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/mobileapps/pestisida?per_page=20&page=1
+  body: none
+  auth: none
+}
+
+params:query {
+  per_page: 20
+  page: 1
+  q: ~
+  komoditas: ~
+  jenis_sasaran: ~
+  type: ~
+  target_type: ~
+  sort: akhir_izin_desc
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  Public paginated list of pesticide brands. One row per merek (not per sasaran) — each card carries a 1-line summary plus arrays of `komoditas_list` and `jenis_sasaran_list` so Flutter can render the brand card without a second call.
+
+  **Query params:**
+  - `per_page` (int, default 20, max 50)
+  - `page` (int, default 1)
+  - `q` (string, max 80) — matches merek, bahan aktif, or no. pendaftaran. **Case-insensitive** (sejak 2026-05-27): `q=agafena`, `q=AGAFENA`, `q=Agafena` semua match `AGAFENA 230 EC`. Cross-DB safe (Postgres prod + MySQL dev).
+  - `komoditas` — substring match, **case-insensitive**, **multi-value** (sejak 2026-05-27). Accepts:
+    - single: `?komoditas=cabai`
+    - comma-separated: `?komoditas=cabai,padi,jagung`
+    - array: `?komoditas[]=cabai&komoditas[]=padi`
+    Logic is OR within column (returns rows matching *any* of the values).
+  - `jenis_sasaran` — substring match, **case-insensitive**, **multi-value** (same formats + OR semantics as `komoditas`)
+  - `type` (enum, **multi-value**, sejak 2026-05-27) — derived from `jenis_pestisida` prefix. Accepts single, comma-separated (`?type=insektisida,fungisida`), or array (`?type[]=insektisida&type[]=fungisida`). Valid keys: `insektisida`, `fungisida`, `herbisida`, `akarisida`, `rodentisida`, `nematisida`, `moluskisida`, `bakterisida`, `zpt`, `pupuk`, `lainnya`. Invalid keys return 422.
+  - `target_type` (enum, **multi-value**, sejak 2026-05-27) — petani-facing grouping that rolls up `type` into broader buckets. Valid keys: `hama`, `penyakit`, `gulma`, `zat_pengatur`, `lainnya`. Single/comma/array forms all work. Mapping:
+    - `hama` ⇐ insektisida + akarisida + rodentisida + nematisida + moluskisida
+    - `penyakit` ⇐ fungisida + bakterisida
+    - `gulma` ⇐ herbisida
+    - `zat_pengatur` ⇐ zpt + pupuk
+    - `lainnya` ⇐ pesticide type `lainnya`
+    Invalid keys return 422. Use this for the top-level Hama / Penyakit / Gulma tab in the mobile UI.
+  - When `komoditas`, `jenis_sasaran`, `type`, and `target_type` are sent together they're AND'd across columns (each column's values OR'd internally).
+  - `sort` (enum, default `akhir_izin_desc`) — one of `akhir_izin_desc`, `akhir_izin_asc`, `nama_asc`, `nama_desc`
+
+  **Response field `type` (sejak 2026-05-27):** Every row in `data[]` includes a derived `type` field (same enum as above) alongside the verbose `jenis_pestisida`. Use `type` for chip filters / icons; show `jenis_pestisida` for the full label.
+
+  **Response field `target_types[]` (sejak 2026-05-27):** Every card includes a `target_types` array — the union of `target_type` values across that merek's sasaran rows. Most cards have a single entry (e.g. `["hama"]`), but combo products can have multiple (e.g. `["hama", "penyakit"]`). Use this to render Hama/Penyakit/Gulma badges on the card.
+
+  **Response field `source` (sejak 2026-06-07):** Top-level `data.source = {name, url}` upstream attribution. `name: "SIMPES 2.0 — Direktorat Pupuk dan Pestisida, Kementerian Pertanian RI"`, `url: "https://pestisida.id/simpes2psp2026/"`. Render at the bottom of the screen as "Sumber data: <name>".
+}
+
+example {
+  name: List: First page
+
+  request: {
+    url: {{baseUrl}}/mobileapps/pestisida?per_page=20&page=1
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "List pestisida",
+          "data": {
+            "source": {
+              "name": "SIMPES 2.0 — Direktorat Pupuk dan Pestisida, Kementerian Pertanian RI",
+              "url":  "https://pestisida.id/simpes2psp2026/"
+            },
+            "snapshot_date": "2026-05-26",
+            "current_page": 1,
+            "last_page": 300,
+            "per_page": 20,
+            "total": 5991,
+            "data": [
+              {
+                "merek_id": 98,
+                "merek_pestisida": "AGAFENA 230 EC",
+                "bahan_aktif": "abamektin (abamectin): 30 g/l klorfenapir (chlorfenapyr): 200 g/l",
+                "jenis_pestisida": "Insektisida racun kontak dan lambung berbentuk pekatan yang dapat diemulsikan",
+                "type": "insektisida",
+                "target_types": ["hama"],
+                "pemegang_pendaftaran": "PT Agro Guna Makmur",
+                "nomor_pendaftaran": "RI. 01010120155286",
+                "tanggal_akhir_izin": "20 Januari 2031",
+                "komoditas_list": ["Cabai"],
+                "jenis_sasaran_list": ["hama trips"],
+                "sasaran_count": 1
+              }
+            ]
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: List: Filter by type
+
+  request: {
+    url: {{baseUrl}}/mobileapps/pestisida?type=insektisida,fungisida&per_page=2
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "List pestisida",
+          "data": {
+            "snapshot_date": "2026-05-26",
+            "current_page": 1,
+            "last_page": 1534,
+            "per_page": 2,
+            "total": 3068,
+            "data": [
+              { "merek_id": 98, "merek_pestisida": "AGAFENA 230 EC", "type": "insektisida", "jenis_pestisida": "Insektisida racun kontak…", "sasaran_count": 1 },
+              { "merek_id": 12, "merek_pestisida": "AMISTAR 250 SC", "type": "fungisida", "jenis_pestisida": "Fungisida sistemik…", "sasaran_count": 2 }
+            ]
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: List: Search by komoditas
+
+  request: {
+    url: {{baseUrl}}/mobileapps/pestisida?komoditas=cabai&per_page=10
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "List pestisida",
+          "data": {
+            "snapshot_date": "2026-05-26",
+            "current_page": 1,
+            "last_page": 12,
+            "per_page": 10,
+            "total": 117,
+            "data": []
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: List: Multi komoditas (comma-separated)
+
+  request: {
+    url: {{baseUrl}}/mobileapps/pestisida?komoditas=cabai,padi,jagung&per_page=5
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "List pestisida",
+          "data": {
+            "snapshot_date": "2026-05-26",
+            "current_page": 1,
+            "last_page": 548,
+            "per_page": 5,
+            "total": 2739,
+            "data": [
+              { "merek_id": 98, "merek_pestisida": "AGAFENA 230 EC", "komoditas_list": ["Cabai"], "jenis_sasaran_list": ["hama trips"], "sasaran_count": 1 },
+              { "merek_id": 12, "merek_pestisida": "AMISTAR 250 SC",  "komoditas_list": ["Padi", "Cabai"], "jenis_sasaran_list": ["antraknosa"], "sasaran_count": 2 }
+            ]
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: List: Multi komoditas (array syntax)
+
+  request: {
+    url: {{baseUrl}}/mobileapps/pestisida?komoditas[]=cabai&komoditas[]=padi&per_page=5
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "List pestisida",
+          "data": {
+            "snapshot_date": "2026-05-26",
+            "current_page": 1,
+            "last_page": 456,
+            "per_page": 5,
+            "total": 2277,
+            "data": []
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: List: Multi komoditas + jenis_sasaran (cross-column AND)
+
+  request: {
+    url: {{baseUrl}}/mobileapps/pestisida?komoditas=cabai,padi&jenis_sasaran=trips&per_page=5
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "List pestisida",
+          "data": {
+            "snapshot_date": "2026-05-26",
+            "current_page": 1,
+            "last_page": 52,
+            "per_page": 5,
+            "total": 258,
+            "data": []
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: List: Filter by target_type=penyakit
+
+  request: {
+    url: {{baseUrl}}/mobileapps/pestisida?target_type=penyakit&per_page=3
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "List pestisida",
+          "data": {
+            "snapshot_date": "2026-05-26",
+            "current_page": 1,
+            "last_page": 343,
+            "per_page": 3,
+            "total": 1029,
+            "data": [
+              { "merek_id": 412, "merek_pestisida": "ABITA 200 EW",          "type": "fungisida", "target_types": ["penyakit"], "sasaran_count": 1 },
+              { "merek_id": 877, "merek_pestisida": "AGROSIN 30 WP",         "type": "fungisida", "target_types": ["penyakit"], "sasaran_count": 1 },
+              { "merek_id": 154, "merek_pestisida": "ANDABLAST 125/400 SC",  "type": "fungisida", "target_types": ["penyakit"], "sasaran_count": 3 }
+            ]
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: List: Multi target_type (hama + penyakit)
+
+  request: {
+    url: {{baseUrl}}/mobileapps/pestisida?target_type=hama,penyakit&per_page=2
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "List pestisida",
+          "data": {
+            "snapshot_date": "2026-05-26",
+            "current_page": 1,
+            "last_page": 1000,
+            "per_page": 2,
+            "total": 2000,
+            "data": [
+              { "merek_id": 98, "merek_pestisida": "AGAFENA 230 EC", "type": "insektisida", "target_types": ["hama"],    "sasaran_count": 1 },
+              { "merek_id": 12, "merek_pestisida": "AMISTAR 250 SC", "type": "fungisida",   "target_types": ["penyakit"], "sasaran_count": 2 }
+            ]
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: List: Case-insensitive q search
+
+  request: {
+    url: {{baseUrl}}/mobileapps/pestisida?q=agafena&per_page=2
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "List pestisida",
+          "data": {
+            "snapshot_date": "2026-05-26",
+            "current_page": 1,
+            "last_page": 1,
+            "per_page": 2,
+            "total": 1,
+            "data": [
+              {
+                "merek_id": 98,
+                "merek_pestisida": "AGAFENA 230 EC",
+                "bahan_aktif": "abamektin (abamectin): 30 g/l klorfenapir (chlorfenapyr): 200 g/l",
+                "jenis_pestisida": "Insektisida racun kontak dan lambung berbentuk pekatan yang dapat diemulsikan",
+                "pemegang_pendaftaran": "PT Agro Guna Makmur",
+                "nomor_pendaftaran": "RI. 01010120155286",
+                "tanggal_akhir_izin": "20 Januari 2031",
+                "tanggal_akhir_izin_date": "2031-01-20",
+                "komoditas_list": ["Cabai"],
+                "jenis_sasaran_list": ["hama trips"],
+                "sasaran_count": 1
+              }
+            ]
+          }
+        }
+      '''
+    }
+  }
+}

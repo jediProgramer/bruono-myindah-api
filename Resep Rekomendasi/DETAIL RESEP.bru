@@ -1,0 +1,116 @@
+meta {
+  name: DETAIL RESEP
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/mobileapps/resep/{{slug}}
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  slug: gado-gado-sayur
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  Returns full recipe detail: title, image, kcal, durasi, porsi, difficulty, ingredients, steps, suitable weather conditions, suitable meal times.
+
+  Content (foto, kalori, instruksi) is supplied by the client (BRIN) and persisted to the recipes table.
+
+  **Path params:**
+  - `{slug}` (string, required) — recipe slug, e.g. `gado-gado-sayur`
+
+  **Response field `video_url` (sejak 2026-06-08):** optional URL to a cooking video (typically YouTube). Plain string, **no URL validation** — admin can paste share URLs with tracker params like `?si=...`, `?utm_source=...`. Returned as-is. `null` when not set. Mobile extracts the video id and renders via `youtube_player_flutter` (recommended for youtube.com / youtu.be URLs) or opens in browser/WebView as fallback.
+}
+
+example {
+  name: Detail: Success
+
+  request: {
+    url: {{baseUrl}}/mobileapps/resep/gado-gado-sayur
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "Detail resep",
+          "data": {
+            "slug": "gado-gado-sayur",
+            "title": "Gado-Gado Sayur",
+            "image": "https://webapi.myindah-app.com/storage/recipes/gado-gado.jpg",
+            "type": "food",
+            "kategori": "Berbasis sayur",
+            "durasi_menit": 35,
+            "porsi": 4,
+            "kcal": 320,
+            "difficulty": "Mudah",
+            "tags": ["sayur", "tahu/tempe", "bumbu kacang"],
+            "meal_times": ["siang"],
+            "ingredients": "200g tauge\n100g kangkung\n2 buah tahu\n3 sdm bumbu kacang\n2 telur rebus\nLontong / kentang rebus secukupnya",
+            "instructions": "1. Rebus sayuran (tauge, kangkung) hingga matang\n2. Tumbuk bumbu kacang dengan sedikit air\n3. Tata sayur, tahu, telur, dan lontong di piring\n4. Siram dengan bumbu kacang. Sajikan",
+            "video_url": "https://www.youtube.com/watch?v=Fyzz8QV35FE",
+            "suitable_meal_times": ["siang", "malam"],
+            "suitable_weather": ["panas-terik", "cerah-normal", "lembap"]
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Detail: Not Found
+
+  request: {
+    url: {{baseUrl}}/mobileapps/resep/nonexistent-recipe
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 404
+      text: Not Found
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": false,
+          "message": "Recipe not found"
+        }
+      '''
+    }
+  }
+}

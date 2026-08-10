@@ -1,0 +1,25 @@
+meta {
+  name: SHOW
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/admin/posts/1
+  body: none
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+}
+
+settings {
+  encodeUrl: true
+}
+
+docs {
+  Detail post berdasarkan id.
+
+  Response fields: `id`, `category_id`, `user_id`, `title`, `slug`, `image` (URL absolut), `content`, `source_url`, `embed_provider`, **`metadata`** (JSON object, since 2026-05-27 — extras per-kategori), `embed` (object atau null), `user`, `category`.
+}

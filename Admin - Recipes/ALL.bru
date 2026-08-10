@@ -1,0 +1,60 @@
+meta {
+  name: ALL (for dropdowns)
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/admin/recipes/all
+  body: none
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  Used by admin dropdowns when linking a recipe to a recommendation. Returns minimal fields only, no pagination.
+}
+
+example {
+  name: All: Success
+
+  request: {
+    url: {{baseUrl}}/admin/recipes/all
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+      Authorization: Bearer {{token}}
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "All Recipes",
+          "data": [
+            { "id": 1, "title": "Gado-Gado Sayur",      "type": "food" },
+            { "id": 2, "title": "Tumis Kangkung Terasi","type": "food" },
+            { "id": 3, "title": "Sup Ikan Kakap",       "type": "food" },
+            { "id": 100, "title": "Es Kelapa Muda",     "type": "drink" }
+          ]
+        }
+      '''
+    }
+  }
+}

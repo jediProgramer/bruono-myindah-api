@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: https://webapi.myindah-app.com/api/public/posts
+  url: {{baseUrl}}/public/posts
   body: none
   auth: none
 }
@@ -16,6 +16,15 @@ settings {
 
 docs {
   # **GET POST**
-  
+
   Menampilkan data artikel dengan nama **POST** secara keseluruhan menggunakan method **GET**
+
+  Setiap post sekarang menyertakan field baru bila merupakan post sosial media:
+  - `source_url` — URL asli (TikTok / YouTube / Instagram)
+  - `embed_provider` — `tiktok` | `youtube` | `instagram`
+  - `embed` — object: `{ provider, original_url, embed_url, embed_html, thumbnail_url, title, author_name }`
+
+  Bila bukan post sosial, `source_url`/`embed_provider` bernilai `null` dan `embed` adalah `null`.
+
+  **`metadata` (sejak 2026-05-27):** JSON object opsional untuk extras per-kategori (nullable). Untuk post Tanaman, isinya `nama_latin`, `kategori_tanaman`, `musim_tanam`, `hari_panen_min/max`, `tingkat_kesulitan`, `kebutuhan_sinar`, `kondisi_tumbuh`, `hama_umum`, dsb. Lihat docs **LIST ARTICLE BY CATEGORY** untuk shape lengkap.
 }

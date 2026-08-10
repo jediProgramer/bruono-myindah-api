@@ -1,0 +1,103 @@
+meta {
+  name: META
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/mobileapps/pestisida/meta
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  Public endpoint. Returns filter dropdown options for the latest snapshot:
+  - `komoditas` — distinct komoditas values
+  - `jenis_sasaran` — distinct jenis_sasaran values
+  - `types` (sejak 2026-05-27) — full enum of pesticide types with row count per type in the current snapshot. Use this for chip badges ("Insektisida (4055)", "Fungisida (1889)"). Keys are stable; counts refresh with each snapshot.
+  - `target_types` (sejak 2026-05-27) — petani-facing target grouping with row counts: `hama`, `penyakit`, `gulma`, `zat_pengatur`, `lainnya`. Derived from the `type` enum (insektisida/akarisida/rodentisida/nematisida/moluskisida → hama; fungisida/bakterisida → penyakit; herbisida → gulma; zpt/pupuk → zat_pengatur). Use for the top-level Hama/Penyakit/Gulma tab in the mobile UI.
+  - `source` (sejak 2026-06-07) — `{name, url}` upstream attribution. For pestisida → `name: "SIMPES 2.0 — Direktorat Pupuk dan Pestisida, Kementerian Pertanian RI"`, `url: "https://pestisida.id/simpes2psp2026/"`. Render at the bottom of the screen as "Sumber data: <name>" with the URL as a tappable link.
+
+  Use these to populate the Hama filter UI.
+}
+
+example {
+  name: Meta: Success
+
+  request: {
+    url: {{baseUrl}}/mobileapps/pestisida/meta
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "Meta pestisida",
+          "data": {
+            "source": {
+              "name": "SIMPES 2.0 — Direktorat Pupuk dan Pestisida, Kementerian Pertanian RI",
+              "url":  "https://pestisida.id/simpes2psp2026/"
+            },
+            "snapshot_date": "2026-05-26",
+            "komoditas": [
+              "Bawang merah",
+              "Cabai",
+              "Jagung",
+              "Kakao",
+              "Kelapa sawit",
+              "Padi",
+              "Tomat"
+            ],
+            "jenis_sasaran": [
+              "gulma berdaun lebar",
+              "gulma rumput",
+              "hama trips",
+              "kutu daun",
+              "wereng coklat"
+            ],
+            "types": [
+              { "key": "insektisida", "count": 4055 },
+              { "key": "fungisida",   "count": 1889 },
+              { "key": "herbisida",   "count": 11847 },
+              { "key": "akarisida",   "count": 24 },
+              { "key": "rodentisida", "count": 86 },
+              { "key": "nematisida",  "count": 20 },
+              { "key": "moluskisida", "count": 116 },
+              { "key": "bakterisida", "count": 23 },
+              { "key": "zpt",         "count": 295 },
+              { "key": "pupuk",       "count": 0 },
+              { "key": "lainnya",     "count": 1633 }
+            ],
+            "target_types": [
+              { "key": "hama",         "count": 4628 },
+              { "key": "penyakit",     "count": 1949 },
+              { "key": "gulma",        "count": 11850 },
+              { "key": "zat_pengatur", "count": 295 },
+              { "key": "lainnya",      "count": 1266 }
+            ]
+          }
+        }
+      '''
+    }
+  }
+}

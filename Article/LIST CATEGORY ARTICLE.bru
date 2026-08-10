@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: https://webapi.myindah-app.com/api/mobileapps/category_list
+  url: {{baseUrl}}/public/category_list
   body: none
   auth: none
 }
@@ -15,7 +15,98 @@ settings {
 }
 
 docs {
-  # **GET CATEGORY POST**
-  
-  Menampilkan data kategori artikel dengan nama **category_list** secara keseluruhan menggunakan method **GET**
+  Public category list. By default returns **all categories** (small set, used by the public navbar).
+  Pass `?paginated=1` to get the legacy paginated response (5 per page).
+
+  **Query params:**
+  - `paginated` (bool, default false) — switch to paginated mode
+  - `search` (string) — case-insensitive `name LIKE %query%`
+}
+
+example {
+  name: All categories (default)
+
+  request: {
+    url: {{baseUrl}}/public/category_list
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "List Data Categories",
+          "data": [
+            { "id": 1, "name": "Tips",         "slug": "tips" },
+            { "id": 2, "name": "Iklim",        "slug": "iklim" },
+            { "id": 3, "name": "Resep",        "slug": "resep" },
+            { "id": 4, "name": "Social Media", "slug": "social-media" },
+            { "id": 6, "name": "Tanaman",      "slug": "tanaman" }
+          ]
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Paginated mode
+
+  request: {
+    url: {{baseUrl}}/public/category_list?paginated=1
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "List Data Categories",
+          "data": {
+            "current_page": 1,
+            "per_page": 5,
+            "total": 5,
+            "last_page": 1,
+            "data": [
+              { "id": 6, "name": "Tanaman",      "slug": "tanaman" },
+              { "id": 4, "name": "Social Media", "slug": "social-media" },
+              { "id": 3, "name": "Resep",        "slug": "resep" },
+              { "id": 2, "name": "Iklim",        "slug": "iklim" },
+              { "id": 1, "name": "Tips",         "slug": "tips" }
+            ]
+          }
+        }
+      '''
+    }
+  }
 }

@@ -1,0 +1,136 @@
+meta {
+  name: MARK ACTIVITY DONE
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/mobileapps/farm/activities/{{activityId}}/done
+  body: none
+  auth: inherit
+}
+
+vars:pre-request {
+  activityId: 1
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  Moves an activity from `upcoming` to `done`. Idempotent (marking an already-done activity returns success with same payload).
+
+  **Path params:**
+  - `{activityId}` (int, required) — the activity id from `LIST ACTIVITIES`
+}
+
+example {
+  name: Mark Done: Success
+
+  request: {
+    url: {{baseUrl}}/mobileapps/farm/activities/1/done
+    method: POST
+    mode: none
+    headers: {
+      Accept: application/json
+      Authorization: Bearer {{token}}
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "Activity marked as done",
+          "data": {
+            "id": 1,
+            "status": "done",
+            "completed_at": "2026-05-21T18:32:00+07:00"
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Mark Done: Belongs to Other User
+
+  request: {
+    url: {{baseUrl}}/mobileapps/farm/activities/999/done
+    method: POST
+    mode: none
+    headers: {
+      Accept: application/json
+      Authorization: Bearer {{token}}
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 403
+      text: Forbidden
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": false,
+          "message": "This activity does not belong to you"
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Mark Done: Not Found
+
+  request: {
+    url: {{baseUrl}}/mobileapps/farm/activities/0/done
+    method: POST
+    mode: none
+    headers: {
+      Accept: application/json
+      Authorization: Bearer {{token}}
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 404
+      text: Not Found
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": false,
+          "message": "Activity not found"
+        }
+      '''
+    }
+  }
+}

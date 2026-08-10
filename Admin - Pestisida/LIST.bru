@@ -1,0 +1,105 @@
+meta {
+  name: LIST
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/admin/pestisida?page=1&per_page=25
+  body: none
+  auth: inherit
+}
+
+params:query {
+  page: 1
+  per_page: 25
+  q: ~
+  komoditas: ~
+  jenis_sasaran: ~
+  type: ~
+  target_type: ~
+  merek_id: ~
+  sort: akhir_izin_desc
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  Admin (auth-only) paginated list of raw `pestisida_snapshots` rows. Each row is one (merek × komoditas × sasaran × organisme) combination — so a single brand can appear in many rows. Use this in the admin table to inspect what got scraped.
+
+  **Query params:**
+  - `page` (int, default 1)
+  - `per_page` (int, default 25, max 100)
+  - `q` (string) — matches merek / bahan aktif / no. pendaftaran / pemegang. **Case-insensitive** (since 2026-05-27)
+  - `komoditas` — substring match, **case-insensitive**, **multi-value** (since 2026-05-27). Accepts single, comma-separated (`?komoditas=cabai,padi`), or array (`?komoditas[]=cabai&komoditas[]=padi`). OR within column.
+  - `jenis_sasaran` — substring match, **case-insensitive**, **multi-value** (same formats + OR semantics as `komoditas`)
+  - `type` (enum, **multi-value**, since 2026-05-27) — derived from `jenis_pestisida` prefix. Accepts single, comma-separated, or array. Valid: `insektisida`, `fungisida`, `herbisida`, `akarisida`, `rodentisida`, `nematisida`, `moluskisida`, `bakterisida`, `zpt`, `pupuk`, `lainnya`. Unknown values are silently ignored (admin permissively filtered, mobile returns 422).
+  - `target_type` (enum, **multi-value**, since 2026-05-27) — petani-facing rollup: `hama` (insektisida+akarisida+rodentisida+nematisida+moluskisida) / `penyakit` (fungisida+bakterisida) / `gulma` (herbisida) / `zat_pengatur` (zpt+pupuk) / `lainnya`. Same formats; unknown values silently ignored.
+  - When `komoditas`, `jenis_sasaran`, `type`, and `target_type` are sent together they're AND'd across columns.
+  - `merek_id` (int) — exact match for a single brand
+  - `sort` (enum, default `akhir_izin_desc`) — one of `akhir_izin_desc`, `akhir_izin_asc`, `nama_asc`, `nama_desc`
+
+  **Response field `type` (since 2026-05-27):** every row in `data[]` includes a derived `type` field alongside the verbose `jenis_pestisida`.
+}
+
+example {
+  name: List: First page
+
+  request: {
+    url: {{baseUrl}}/admin/pestisida?page=1&per_page=25
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+      Authorization: Bearer {{token}}
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "Pestisida rows",
+          "data": {
+            "current_page": 1,
+            "per_page": 25,
+            "total": 20008,
+            "last_page": 801,
+            "data": [
+              {
+                "id": 1,
+                "snapshot_date": "2026-05-26",
+                "merek_id": 98,
+                "merek_pestisida": "AGAFENA 230 EC",
+                "bahan_aktif": "abamektin (abamectin): 30 g/l klorfenapir (chlorfenapyr): 200 g/l",
+                "jenis_pestisida": "Insektisida racun kontak dan lambung berbentuk pekatan yang dapat diemulsikan",
+                "type": "insektisida",
+                "komoditas": "Cabai",
+                "jenis_sasaran": "hama trips",
+                "organisme": "Thrips parvispinus",
+                "cara_aplikasi_dosis": "Penyemprotan volume tinggi: 0,75 ml/l",
+                "tanggal_akhir_izin": "20 Januari 2031",
+                "pemegang_pendaftaran": "PT Agro Guna Makmur",
+                "nomor_pendaftaran": "RI. 01010120155286",
+                "fetched_at": "2026-05-26T13:14:29+07:00"
+              }
+            ]
+          }
+        }
+      '''
+    }
+  }
+}

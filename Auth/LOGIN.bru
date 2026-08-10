@@ -5,14 +5,21 @@ meta {
 }
 
 post {
-  url: https://webapi.myindah-app.com/api/login
+  url: {{baseUrl}}/login
   body: multipartForm
-  auth: inherit
+  auth: none
 }
 
 body:multipart-form {
-  email: admin@gmail.com
-  password: password
+  email: {{email}}
+  password: {{password}}
+}
+
+script:post-response {
+  if (res.status === 200 && res.body) {
+    if (res.body.token) bru.setEnvVar("token", res.body.token);
+    if (res.body.refresh_token) bru.setEnvVar("refresh_token", res.body.refresh_token);
+  }
 }
 
 settings {
@@ -20,12 +27,145 @@ settings {
 }
 
 docs {
-  # **POST LOGIN**
-  
-  Dokumen untuk mengirimkan API login dengan **Body** dengan **form-data,** menggunakan method **POST**
-  
-  | Key | Value |
-  | --- | --- |
-  | email | _default_ [<i><b>admin@gmail.com</b></i>](https://mailto:admin@gmail.com) _atau email yang sudah terdaftar_ |
-  | password | _default_ _**password**_ _atau password yang sudah terdaftar_ |
+  Multipart-form. Returns BOTH an access token (short-lived JWT) and a refresh token (long-lived opaque string). On success, the post-response script auto-saves them to the `token` and `refresh_token` env vars.
+
+  **Body (multipart):**
+  - `email` (string, required)
+  - `password` (string, required)
+
+  **Token lifetimes:**
+  - `token` — 60 minutes (JWT, sent on every API call as Bearer)
+  - `refresh_token` — 14 days (sent only to `/auth/refresh`; rotates on every refresh)
+}
+
+example {
+  name: Login: Success
+
+  request: {
+    url: {{baseUrl}}/login
+    method: POST
+    mode: multipartForm
+    headers: {
+      Accept: application/json
+    }
+
+    body:multipart-form: {
+      email: admin@gmail.com
+      password: password
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "user": {
+            "name": "Administrator",
+            "email": "admin@gmail.com",
+            "role_name": "administrator",
+            "image": "admin.jpg"
+          },
+          "permissions": {
+            "posts.index": true,
+            "posts.create": true,
+            "users.index": true
+          },
+          "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3dlYmFwaS5teWluZGFoLWFwcC5jb20vYXBpL2xvZ2luIiwiaWF0IjoxNzc2ODgwNjMxLCJleHAiOjE3NzY4ODQyMzEsInN1YiI6IjEifQ.SIG",
+          "expires_in_minutes": 60,
+          "refresh_token": "izZIkhEr9Jm4ytpUgw9p1SC7C18EaYT3t90aT4Ai0bhiczMBEsHDixydyumJCyyx",
+          "refresh_token_expires_at": "2026-06-04T09:27:09+00:00",
+          "refresh_token_expires_in_minutes": 20160
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Login: Wrong Credentials
+
+  request: {
+    url: {{baseUrl}}/login
+    method: POST
+    mode: multipartForm
+    headers: {
+      Accept: application/json
+    }
+
+    body:multipart-form: {
+      email: admin@gmail.com
+      password: wrongpass
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 400
+      text: Bad Request
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": false,
+          "message": "Email or Password is incorrect"
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Login: Validation Error
+
+  request: {
+    url: {{baseUrl}}/login
+    method: POST
+    mode: multipartForm
+    headers: {
+      Accept: application/json
+    }
+
+    body:multipart-form: {
+      email: not-an-email
+      password: ""
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 422
+      text: Unprocessable Entity
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "email": ["The email must be a valid email address."],
+          "password": ["The password field is required."]
+        }
+      '''
+    }
+  }
 }

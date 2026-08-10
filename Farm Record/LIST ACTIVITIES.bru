@@ -1,0 +1,170 @@
+meta {
+  name: LIST ACTIVITIES
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/mobileapps/farm/activities?status=upcoming
+  body: none
+  auth: inherit
+}
+
+params:query {
+  status: upcoming
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  Returns activities for the current user.
+
+  **Query params:**
+  - `status` (string, optional) — `upcoming` (default) or `done`
+
+  Response items include `category` (Pemupukan, Penyemprotan, dll), `tanggal`, `tanaman`, `catatan`, `due_label` (e.g. "Besok", "Dalam 4 hari").
+}
+
+example {
+  name: List Activities: Upcoming
+
+  request: {
+    url: {{baseUrl}}/mobileapps/farm/activities?status=upcoming
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+      Authorization: Bearer {{token}}
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "Activities",
+          "data": [
+            {
+              "id": 1,
+              "nama": "Pemupukan Jagung",
+              "category": "Pemupukan",
+              "tanaman": "Jagung",
+              "tanggal": "2026-05-22",
+              "due_label": "Besok",
+              "catatan": "Pupuk NPK 15-15-15",
+              "is_template": false,
+              "status": "upcoming"
+            },
+            {
+              "id": 2,
+              "nama": "Penyemprotan Cabai",
+              "category": "Penyemprotan",
+              "tanaman": "Cabai",
+              "tanggal": "2026-05-25",
+              "due_label": "Dalam 4 hari",
+              "catatan": "Pestisida organik",
+              "is_template": false,
+              "status": "upcoming"
+            }
+          ]
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: List Activities: Done
+
+  request: {
+    url: {{baseUrl}}/mobileapps/farm/activities?status=done
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+      Authorization: Bearer {{token}}
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "Activities",
+          "data": [
+            {
+              "id": 3,
+              "nama": "Pengolahan Lahan",
+              "category": "Pengolahan",
+              "tanaman": "Padi",
+              "tanggal": "2026-05-18",
+              "due_label": "3 hari lalu",
+              "catatan": null,
+              "is_template": true,
+              "status": "done",
+              "completed_at": "2026-05-18T16:20:00+07:00"
+            }
+          ]
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: List Activities: Validation Error
+
+  request: {
+    url: {{baseUrl}}/mobileapps/farm/activities?status=invalid
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+      Authorization: Bearer {{token}}
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 422
+      text: Unprocessable Entity
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "status": ["The selected status is invalid. Use 'upcoming' or 'done'."]
+        }
+      '''
+    }
+  }
+}

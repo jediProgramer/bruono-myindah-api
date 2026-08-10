@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: https://webapi.myindah-app.com/api/mobileapps/postsdetail/resep-gado-gado-siram-yang-isiannya-sayuran-komplet
+  url: {{baseUrl}}/public/postsdetail/1
   body: none
   auth: none
 }
@@ -15,7 +15,72 @@ settings {
 }
 
 docs {
-  # **GET POST**
-  
-  Menampilkan data artikel dengan nama **POST** secara keseluruhan menggunakan method **GET, dengan** memasukan variabel **slug** setalah **POST/** contoh **POST/StartFragmentresep-gado-gado-siram-yang-isiannya-sayuran-komplet**
+  # **GET POST DETAIL (by id, public, used by mobile)**
+
+  Menampilkan detail artikel berdasarkan **id**. Endpoint ini publik dan dipakai oleh aplikasi mobile.
+
+  Response menyertakan kolom baru bila post berkategori social:
+  - `source_url` — URL asli (TikTok / YouTube / Instagram)
+  - `embed_provider` — `tiktok` | `youtube` | `instagram`
+  - `embed` — object: `{ provider, original_url, embed_url, embed_html, thumbnail_url, title, author_name }`
+
+  **`metadata` (sejak 2026-05-27):** JSON object opsional untuk extras per-kategori (mis. tanaman = `nama_latin`, `hari_panen_min/max`, `musim_tanam`, `kondisi_tumbuh`, `hama_umum`). Null untuk post yang belum diisi. Lihat docs di **LIST ARTICLE BY CATEGORY** untuk shape lengkap.
+}
+
+example {
+  name: Tanaman detail with metadata
+
+  request: {
+    url: {{baseUrl}}/public/postsdetail/14
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "Detail Data Post",
+          "data": {
+            "id": 14,
+            "category_id": 6,
+            "user_id": 1,
+            "title": "Cabai Rawit",
+            "slug": "cabai-rawit",
+            "image": "https://webapi.myindah-app.com/storage/posts/cabai-rawit.jpg",
+            "content": "Sayuran rempah dengan permintaan tinggi sepanjang tahun.",
+            "source_url": null,
+            "embed_provider": null,
+            "metadata": {
+              "nama_latin": "Capsicum frutescens",
+              "kategori_tanaman": "sayuran",
+              "musim_tanam": "sepanjang_tahun",
+              "hari_panen_min": 75,
+              "hari_panen_max": 90,
+              "tingkat_kesulitan": "sedang",
+              "kebutuhan_sinar": "penuh",
+              "kondisi_tumbuh": { "ph_min": 5.5, "ph_max": 6.8, "suhu_min": 18, "suhu_max": 30 },
+              "hama_umum": ["thrips", "kutu daun"]
+            },
+            "embed": null,
+            "category": { "id": 6, "name": "Tanaman" }
+          }
+        }
+      '''
+    }
+  }
 }

@@ -5,14 +5,13 @@ meta {
 }
 
 post {
-  url: https://webapi.myindah-app.com/api/mobileapps/register
+  url: {{baseUrl}}/mobileapps/register
   body: multipartForm
   auth: none
 }
 
 headers {
   Accept: application/json
-  Content-Type: application/json
 }
 
 body:multipart-form {
@@ -29,24 +28,12 @@ settings {
 
 docs {
   # **POST REGISTER USER**
-  
-  Dokumen untuk mengirimkan API register user dengan **Headers,** menggunakan method **POST**
-  
-  | **Key** | **Value** |
+
+  | Key | Value |
   | --- | --- |
-  | Accept | application/json |
-  | Content-Type | application/json |
-  | Authorization | Bearer **TOKEN DARI LOGIN** |
-  
-  lalu **Body** dengan **form-data** diisi dengan
-  
-  | **Key** | **Tipe** | **Value** |
-  | --- | --- | --- |
-  | name | text | _isikan nama user_ |
-  | email | text | _isikan email_ |
-  | password | text | _isikan password_ |
-  | password_confirmation | text | _isikan ulangin password_ |
-  | role_name | text | _isikan dengan peran comsumer atau farmer_ |
-  | roles\[\] | text | _isikan dengan peran comsumer atau farmer_ |
-  | _method | text | PATCH |
+  | name | nama user |
+  | email | email user |
+  | password | password |
+  | password_confirmation | konfirmasi password |
+  | role_name | `farmer` atau `consumer` |
 }

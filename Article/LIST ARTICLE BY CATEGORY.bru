@@ -5,9 +5,19 @@ meta {
 }
 
 get {
-  url: https://webapi.myindah-app.com/api/mobileapps/posts/3
+  url: {{baseUrl}}/public/posts/category/6?page=1
   body: none
   auth: none
+}
+
+params:query {
+  page: 1
+  tipe: ~
+  sort: ~
+}
+
+headers {
+  Accept: application/json
 }
 
 settings {
@@ -15,7 +25,489 @@ settings {
 }
 
 docs {
-  # **GET POST BY CATERGORY ID**
-  
-  Menampilkan data artikel dengan nama **POST** secara keseluruhan menggunakan method **GET** dengan memasukan **catergory_id** setelah **post/catergory_id**
+  Paginated list of posts in a single category. Use this when the user taps a category link in the public site / mobile app.
+
+  **URL params:**
+  - `{category_id}` — numeric id (see `/public/category_list` for the full list).
+
+  **Query params:**
+  - `page` (int, default 1) — pagination, 10 per page.
+  - `tipe` (string, optional, **sejak 2026-06-01**) — filter by `metadata.tipe`. Accepts:
+    - single: `?tipe=hama`
+    - comma-separated: `?tipe=hama,penyakit`
+    - array: `?tipe[]=hama&tipe[]=penyakit`
+    Only `hama` and `penyakit` are valid; unknown values are silently dropped (returns all rows). Use this to power the Hama / Penyakit sub-tabs in the mobile UI (category_id=7).
+  - `sort` (enum, optional, default `terbaru`, **sejak 2026-06-08**) — one of `nama_asc` (A→Z, case-insensitive), `nama_desc` (Z→A), `terbaru` (created_at desc, default), `terlama` (created_at asc). Invalid values silently fall back to `terbaru`.
+
+  **Known categories on prod (id → name):**
+  - `1` Tips
+  - `2` Iklim
+  - `3` Resep
+  - `4` Social Media
+  - `6` Tanaman          — 23 Tanaman Pangan + Hortikultura entries (each with real Wikipedia photo + metadata)
+  - `7` Hama & Penyakit  — 25 entries (14 hama + 11 penyakit), each with real Wikipedia photo + metadata
+
+  **`metadata` field (since 2026-05-27):**
+  Optional JSON object for category-specific structured extras. Null on most posts.
+
+  **For Tanaman (category_id=6):**
+  ```
+  {
+    "nama_latin": "Capsicum frutescens",
+    "kategori_tanaman": "sayuran",         // pangan | sayuran | buah | herba | palawija
+    "musim_tanam": "sepanjang_tahun",      // hujan | kemarau | sepanjang_tahun
+    "hari_panen_min": 75,
+    "hari_panen_max": 90,
+    "tingkat_kesulitan": "sedang",         // mudah | sedang | sulit
+    "kebutuhan_sinar": "penuh",            // penuh | sebagian | teduh
+    "kondisi_tumbuh": { "ph_min": 5.5, "ph_max": 6.8, "suhu_min": 18, "suhu_max": 30, "mdpl_min": 0, "mdpl_max": 1000 },
+    "hama_umum": ["thrips", "kutu daun"],
+    "catatan_panen": "Mulai berbuah 3-4 tahun setelah tanam"  // optional, for slow fruit trees
+  }
+  ```
+
+  **For Hama & Penyakit (category_id=7):**
+  ```
+  {
+    "nama_latin": "Pyricularia oryzae",
+    "tipe": "penyakit",                    // hama | penyakit  (drives Hama/Penyakit sub-tab filter)
+    "kategori_organisme": "jamur",         // serangga | tungau | tikus | siput | nematoda | jamur | virus | bakteri
+    "tingkat_keparahan": "berat",          // ringan | sedang | berat
+    "tanaman_inang": ["Padi"],             // host crop display names (match Tanaman titles when possible)
+    "gejala": "Bercak belah ketupat …",    // symptoms (Indonesian)
+    "pengendalian": "Varietas tahan; fungisida sistemik (trisiklazol) saat awal gejala."
+  }
+  ```
+
+  Other categories may use their own keys (e.g. Resep can carry nutrition; Tips can stay null). Mobile reads `post.metadata.xxx` directly — array cast applied server-side.
+
+  **Response field `source` (sejak 2026-06-07):** when the category has known upstream attribution (currently `resep`, `tanaman`, `hama-penyakit`, `social-media` doesn't), the response includes a top-level `source = {name, url}` between `message` and `data`. Categories without a known source (e.g. Tips, Iklim) omit the field entirely. Render the source as "Sumber data: <name>" at the screen footer.
+}
+
+example {
+  name: Tanaman — first page
+
+  request: {
+    url: {{baseUrl}}/public/posts/category/6?page=1
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "List Data Posts",
+          "data": {
+            "current_page": 1,
+            "per_page": 10,
+            "total": 23,
+            "last_page": 3,
+            "data": [
+              {
+                "id": 29,
+                "title": "Nanas",
+                "slug": "nanas",
+                "image": "https://webapi.myindah-app.com/storage/posts/nanas.jpg",
+                "content": "Tanaman buah tropis. Sentra: Subang, Lampung, Kediri.",
+                "category_id": 6,
+                "user_id": 1,
+                "source_url": null,
+                "embed_provider": null,
+                "metadata": null,
+                "embed": null,
+                "user": { "id": 1, "name": "Administrator" },
+                "category": { "id": 6, "name": "Tanaman" },
+                "created_at": "2026-05-26T13:53:02.000000Z",
+                "updated_at": "2026-05-26T13:53:04.000000Z"
+              },
+              {
+                "id": 14,
+                "title": "Cabai Rawit",
+                "slug": "cabai-rawit",
+                "image": "https://webapi.myindah-app.com/storage/posts/cabai-rawit.jpg",
+                "content": "Sayuran rempah dengan permintaan tinggi sepanjang tahun.",
+                "category_id": 6,
+                "metadata": {
+                  "nama_latin": "Capsicum frutescens",
+                  "kategori_tanaman": "sayuran",
+                  "musim_tanam": "sepanjang_tahun",
+                  "hari_panen_min": 75,
+                  "hari_panen_max": 90,
+                  "tingkat_kesulitan": "sedang",
+                  "kebutuhan_sinar": "penuh",
+                  "kondisi_tumbuh": { "ph_min": 5.5, "ph_max": 6.8, "suhu_min": 18, "suhu_max": 30 },
+                  "hama_umum": ["thrips", "kutu daun"]
+                },
+                "category": { "id": 6, "name": "Tanaman" }
+              }
+            ]
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Hama & Penyakit — first page
+
+  request: {
+    url: {{baseUrl}}/public/posts/category/7?page=1
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "List Data Posts",
+          "data": {
+            "current_page": 1,
+            "per_page": 10,
+            "total": 25,
+            "last_page": 3,
+            "data": [
+              {
+                "id": 47,
+                "title": "Thrips",
+                "slug": "thrips",
+                "image": "https://webapi.myindah-app.com/storage/posts/thrips.jpg",
+                "content": "Daun keriting ke atas (cupping) berwarna keperakan; bunga rontok; vektor virus kuning cabai.",
+                "category_id": 7,
+                "metadata": {
+                  "nama_latin": "Thrips parvispinus",
+                  "tipe": "hama",
+                  "kategori_organisme": "serangga",
+                  "tingkat_keparahan": "berat",
+                  "tanaman_inang": ["Cabai Merah", "Cabai Rawit", "Bawang Merah"],
+                  "gejala": "Daun keriting ke atas (cupping) berwarna keperakan; bunga rontok; vektor virus kuning cabai.",
+                  "pengendalian": "Perangkap kuning lengket; mulsa plastik perak; rotasi insektisida (spinetoram, abamektin, fipronil)."
+                },
+                "category": { "id": 7, "name": "Hama & Penyakit" }
+              },
+              {
+                "id": 38,
+                "title": "Blast Padi",
+                "slug": "blast-padi",
+                "image": "https://webapi.myindah-app.com/storage/posts/blast-padi.jpg",
+                "content": "Bercak belah ketupat tepi coklat kehitaman pusat abu-abu pada daun…",
+                "category_id": 7,
+                "metadata": {
+                  "nama_latin": "Pyricularia oryzae",
+                  "tipe": "penyakit",
+                  "kategori_organisme": "jamur",
+                  "tingkat_keparahan": "berat",
+                  "tanaman_inang": ["Padi"],
+                  "gejala": "Bercak belah ketupat tepi coklat kehitaman pusat abu-abu pada daun; leher malai membusuk (neck blast) menyebabkan gagal panen hingga 80%.",
+                  "pengendalian": "Tanam varietas tahan (Inpari Blas, Cigeulis); hindari over-nitrogen; fungisida sistemik (trisiklazol, isoprotiolan) saat awal gejala."
+                },
+                "category": { "id": 7, "name": "Hama & Penyakit" }
+              }
+            ]
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Social Media — embedded posts
+
+  request: {
+    url: {{baseUrl}}/public/posts/category/4?page=1
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "List Data Posts By Category Id",
+          "data": {
+            "current_page": 1,
+            "per_page": 10,
+            "total": 1,
+            "last_page": 1,
+            "data": [
+              {
+                "id": 6,
+                "title": "TikTok: Gudangpeluru 7539789048500571400",
+                "slug": "tiktok-gudangpeluru-7539789048500571400",
+                "image": null,
+                "content": null,
+                "source_url": "https://www.tiktok.com/@gudangpeluru.45/video/7539789048500571400",
+                "embed_provider": "tiktok",
+                "embed": {
+                  "provider": "tiktok",
+                  "embed_url": "https://www.tiktok.com/embed/v2/7539789048500571400",
+                  "embed_html": "<blockquote class=\"tiktok-embed\" …></blockquote> <script async src=\"https://www.tiktok.com/embed.js\"></script>",
+                  "thumbnail_url": "https://p16-common-sign.tiktokcdn.com/…",
+                  "title": "Pink Floyd - Comfortably Numb #pinkfloyd",
+                  "author_name": "Gudang Peluru"
+                },
+                "category": { "id": 4, "name": "Social Media" }
+              }
+            ]
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Hama & Penyakit — filter Hama only
+
+  request: {
+    url: {{baseUrl}}/public/posts/category/7?tipe=hama&page=1
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "List Data Posts",
+          "data": {
+            "current_page": 1,
+            "per_page": 10,
+            "total": 14,
+            "last_page": 2,
+            "data": [
+              {
+                "id": 53,
+                "title": "Kepik Hijau",
+                "slug": "kepik-hijau",
+                "image": "https://webapi.myindah-app.com/storage/posts/kepik-hijau.jpg",
+                "content": "Hama pengisap polong/kedelai.",
+                "category_id": 7,
+                "metadata": {
+                  "nama_latin": "Nezara viridula",
+                  "tipe": "hama",
+                  "kategori_organisme": "serangga",
+                  "tingkat_keparahan": "sedang",
+                  "tanaman_inang": ["Kedelai", "Kacang Tanah"],
+                  "gejala": "Polong kerdil, biji hampa atau bernoda hitam.",
+                  "pengendalian": "Insektisida sistemik saat populasi tinggi; tanaman perangkap."
+                },
+                "category": { "id": 7, "name": "Hama & Penyakit" }
+              }
+            ]
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Hama & Penyakit — filter Penyakit only
+
+  request: {
+    url: {{baseUrl}}/public/posts/category/7?tipe=penyakit&page=1
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "List Data Posts",
+          "data": {
+            "current_page": 1,
+            "per_page": 10,
+            "total": 11,
+            "last_page": 2,
+            "data": [
+              {
+                "id": 64,
+                "title": "Penyakit Kuning Cabai",
+                "slug": "penyakit-kuning-cabai",
+                "image": "https://webapi.myindah-app.com/storage/posts/penyakit-kuning-cabai.jpg",
+                "content": "Virus yang ditularkan kutu kebul.",
+                "category_id": 7,
+                "metadata": {
+                  "nama_latin": "Pepper yellow leaf curl virus (Begomovirus)",
+                  "tipe": "penyakit",
+                  "kategori_organisme": "virus",
+                  "tingkat_keparahan": "berat",
+                  "tanaman_inang": ["Cabai Merah", "Cabai Rawit", "Tomat"],
+                  "gejala": "Daun muda kuning keriting ke atas, ukuran mengecil…",
+                  "pengendalian": "Sanitasi gulma; insektisida sistemik vs kutu kebul."
+                },
+                "category": { "id": 7, "name": "Hama & Penyakit" }
+              }
+            ]
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Hama & Penyakit — both (tipe=hama,penyakit)
+
+  request: {
+    url: {{baseUrl}}/public/posts/category/7?tipe=hama,penyakit&page=1
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "List Data Posts",
+          "data": {
+            "current_page": 1,
+            "per_page": 10,
+            "total": 25,
+            "last_page": 3,
+            "data": []
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Hama — sorted alphabetically (A→Z)
+
+  request: {
+    url: {{baseUrl}}/public/posts/category/7?tipe=hama&sort=nama_asc&page=1
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "List Data Posts",
+          "source": {
+            "name": "Kurasi MyIndah Diet · Foto: Wikipedia Commons",
+            "url":  "https://id.wikipedia.org"
+          },
+          "data": {
+            "current_page": 1,
+            "per_page": 10,
+            "total": 14,
+            "last_page": 2,
+            "data": [
+              { "id": 53, "title": "Kepik Hijau",   "slug": "kepik-hijau",   "metadata": { "tipe": "hama" } },
+              { "id": 51, "title": "Kutu Daun",     "slug": "kutu-daun",     "metadata": { "tipe": "hama" } },
+              { "id": 50, "title": "Kutu Putih",    "slug": "kutu-putih",    "metadata": { "tipe": "hama" } },
+              { "id": 48, "title": "Lalat Buah",    "slug": "lalat-buah",    "metadata": { "tipe": "hama" } }
+            ]
+          }
+        }
+      '''
+    }
+  }
 }

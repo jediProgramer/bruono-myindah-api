@@ -5,15 +5,24 @@ meta {
 }
 
 post {
-  url: https://webapi.myindah-app.com/api/logout
+  url: {{baseUrl}}/logout
   body: multipartForm
-  auth: none
+  auth: inherit
 }
 
 headers {
   Accept: application/json
-  Content-Type: application/json
-  Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3dlYmFwaS5teWluZGFoLWFwcC5jb20vYXBpL2xvZ2luIiwiaWF0IjoxNzczODQ2MjAyLCJleHAiOjE3NzM4NDk4MDIsIm5iZiI6MTc3Mzg0NjIwMiwianRpIjoiNnBVdTBuRE5sUE9HNG1sTyIsInN1YiI6IjEiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3In0.ok6S6TaLh_5-VKY7RBVSsFOWYbwCNcvdWBqLzQwJnYo
+}
+
+body:multipart-form {
+  refresh_token: {{refresh_token}}
+}
+
+script:post-response {
+  if (res.status === 200) {
+    bru.setEnvVar("token", "");
+    bru.setEnvVar("refresh_token", "");
+  }
 }
 
 settings {
@@ -21,13 +30,114 @@ settings {
 }
 
 docs {
-  # **POST LOGOUT**
-  
-  Dokumen untuk mengirimkan API logout dengan **Headers,** menggunakan method **POST**
-  
-  | **Key** | **Value** |
-  | --- | --- |
-  | Accept | application/json |
-  | Content-Type | application/json |
-  | Authorization | Bearer **TOKEN DARI LOGIN** |
+  Invalidates BOTH tokens:
+  - The current JWT access token (added to server blacklist; future API calls will return 401).
+  - The refresh token, if supplied in the body (revoked in DB; future refresh attempts will return 401).
+
+  Either token alone can be sent — both is the recommended pattern from Flutter on user-initiated logout. The bru env vars are cleared on success.
+
+  **Headers:**
+  - `Authorization` — `Bearer <token>` (required)
+
+  **Body (multipart):**
+  - `refresh_token` (string, optional but recommended) — revokes the refresh token server-side
+}
+
+example {
+  name: Logout: Success (both tokens)
+
+  request: {
+    url: {{baseUrl}}/logout
+    method: POST
+    mode: multipartForm
+    headers: {
+      Accept: application/json
+      Authorization: Bearer {{token}}
+    }
+
+    body:multipart-form: {
+      refresh_token: kDVkhJnHVPNPZsbrt3Vr1cIEp9NefpEzJAv6tNSfzublvJKdmeXlI2UpIBfM3YqN
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        { "success": true }
+      '''
+    }
+  }
+}
+
+example {
+  name: Logout: Success (access token only)
+
+  request: {
+    url: {{baseUrl}}/logout
+    method: POST
+    mode: none
+    headers: {
+      Accept: application/json
+      Authorization: Bearer {{token}}
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        { "success": true }
+      '''
+    }
+  }
+}
+
+example {
+  name: Logout: Missing Token
+
+  request: {
+    url: {{baseUrl}}/logout
+    method: POST
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 401
+      text: Unauthorized
+    }
+
+    body: {
+      type: json
+      content: '''
+        { "message": "Unauthenticated." }
+      '''
+    }
+  }
 }

@@ -1,0 +1,136 @@
+meta {
+  name: HOME BY CATEGORY
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/public/home_by_category
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  Public endpoint used by the homepage. Returns every category that has at least one post, with the latest **5 posts** attached to each (sorted by `id` asc). Posts inside a section include the same fields as any other public post — including the synthesized `embed` object when `embed_provider` is set, and the new `metadata` JSON object (since 2026-05-27).
+
+  Use this to render the homepage as a sectioned feed (one section per category).
+
+  **Per-section `source` (sejak 2026-06-07):** each section in `data[]` includes its own `source = {name, url}` when known (resep → "Kurasi BRIN"; tanaman → "Satu Data Pertanian"; hama-penyakit → "Wikipedia Commons"). `null` otherwise. Render under the section header.
+}
+
+example {
+  name: Home by category — typical response
+
+  request: {
+    url: {{baseUrl}}/public/home_by_category
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "Home grouped by category",
+          "data": [
+            {
+              "id": 3,
+              "name": "Resep",
+              "slug": "resep",
+              "posts": [
+                {
+                  "id": 2,
+                  "title": "Resep Gado-gado Siram yang Isiannya Sayuran Komplet",
+                  "slug": "resep-gado-gado-siram-yang-isiannya-sayuran-komplet",
+                  "category_id": 3,
+                  "user_id": 1,
+                  "image": "https://webapi.myindah-app.com/storage/posts/abcd.jpg",
+                  "content": "<p>Gado-gado adalah …</p>",
+                  "source_url": null,
+                  "embed_provider": null,
+                  "embed": null,
+                  "user": { "id": 1, "name": "Administrator" },
+                  "category": { "id": 3, "name": "Resep" },
+                  "created_at": "2026-03-09T07:21:00.000000Z"
+                }
+              ]
+            },
+            {
+              "id": 4,
+              "name": "Social Media",
+              "slug": "social-media",
+              "posts": [
+                {
+                  "id": 6,
+                  "title": "TikTok: Gudangpeluru 7539789048500571400",
+                  "slug": "tiktok-gudangpeluru-7539789048500571400",
+                  "category_id": 4,
+                  "user_id": 1,
+                  "image": null,
+                  "content": null,
+                  "source_url": "https://www.tiktok.com/@gudangpeluru.45/video/7539789048500571400",
+                  "embed_provider": "tiktok",
+                  "embed": {
+                    "provider": "tiktok",
+                    "original_url": "https://www.tiktok.com/@gudangpeluru.45/video/7539789048500571400",
+                    "embed_url": "https://www.tiktok.com/embed/v2/7539789048500571400",
+                    "embed_html": "<blockquote class=\"tiktok-embed\" cite=\"https://www.tiktok.com/@gudangpeluru.45/video/7539789048500571400\" …</blockquote> <script async src=\"https://www.tiktok.com/embed.js\"></script>",
+                    "thumbnail_url": "https://p16-common-sign.tiktokcdn.com/…",
+                    "title": "Pink Floyd - Comfortably Numb #pinkfloyd",
+                    "author_name": "Gudang Peluru"
+                  },
+                  "user": { "id": 1, "name": "Administrator" },
+                  "category": { "id": 4, "name": "Social Media" }
+                }
+              ]
+            },
+            {
+              "id": 6,
+              "name": "Tanaman",
+              "slug": "tanaman",
+              "posts": [
+                {
+                  "id": 14,
+                  "title": "Cabai Rawit",
+                  "slug": "cabai-rawit",
+                  "category_id": 6,
+                  "image": "https://webapi.myindah-app.com/storage/posts/cabai-rawit.jpg",
+                  "content": "Sayuran rempah dengan permintaan tinggi sepanjang tahun.",
+                  "source_url": null,
+                  "embed_provider": null,
+                  "metadata": {
+                    "nama_latin": "Capsicum frutescens",
+                    "kategori_tanaman": "sayuran",
+                    "musim_tanam": "sepanjang_tahun",
+                    "hari_panen_min": 75,
+                    "hari_panen_max": 90
+                  },
+                  "embed": null,
+                  "category": { "id": 6, "name": "Tanaman" }
+                }
+              ]
+            }
+          ]
+        }
+      '''
+    }
+  }
+}

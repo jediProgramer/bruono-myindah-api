@@ -1,0 +1,119 @@
+meta {
+  name: LIST ACTIVITIES
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/admin/farm/activities
+  body: none
+  auth: inherit
+}
+
+params:query {
+  user_id: ~
+  status: ~
+  page: 1
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  Read-only audit of farm activities (template + custom). Filter by user and/or status.
+
+  **Query params:**
+  - `user_id` (int, optional)
+  - `status` (string, optional) — `upcoming` or `done`
+  - `page` (int, default 1)
+}
+
+example {
+  name: List Activities: All
+
+  request: {
+    url: {{baseUrl}}/admin/farm/activities
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+      Authorization: Bearer {{token}}
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "Farm activities",
+          "data": {
+            "current_page": 1,
+            "per_page": 25,
+            "total": 312,
+            "last_page": 13,
+            "data": [
+              {
+                "id": 1,
+                "user": { "id": 5, "name": "Pak Joko" },
+                "cycle_id": 1,
+                "nama": "Pemupukan Pertama",
+                "category": "Pemupukan",
+                "tanaman": "Padi",
+                "tanggal": "2026-05-22",
+                "is_template": true,
+                "status": "upcoming",
+                "completed_at": null
+              }
+            ]
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: List Activities: Validation Error
+
+  request: {
+    url: {{baseUrl}}/admin/farm/activities?status=invalid
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+      Authorization: Bearer {{token}}
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 422
+      text: Unprocessable Entity
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "status": ["The selected status is invalid. Use 'upcoming' or 'done'."]
+        }
+      '''
+    }
+  }
+}

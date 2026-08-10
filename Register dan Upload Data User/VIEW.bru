@@ -5,15 +5,13 @@ meta {
 }
 
 get {
-  url: https://webapi.myindah-app.com/api/mobileapps/users
+  url: {{baseUrl}}/mobileapps/users
   body: none
-  auth: none
+  auth: inherit
 }
 
 headers {
   Accept: application/json
-  Content-Type: application/json
-  Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3dlYmFwaS5teWluZGFoLWFwcC5jb20vYXBpL2xvZ2luIiwiaWF0IjoxNzc2ODgwNjMxLCJleHAiOjE3NzY4ODQyMzEsIm5iZiI6MTc3Njg4MDYzMSwianRpIjoiMWNwQ2JmYm1Ecm00NFVTUSIsInN1YiI6IjUiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3In0.XAvOjGWuc6-94TH8__bQaEwIH-grUr9_pPOADc2yUVE
 }
 
 settings {
@@ -21,16 +19,7 @@ settings {
 }
 
 docs {
-  # **VIIEW USER**
-  
-  > memanggil user dengan **/user** 
-    
-  
-  Dokumen untuk mengirimkan API register user dengan **Headers,** menggunakan method **GET**
-  
-  | **Key** | **Value** |
-  | --- | --- |
-  | Accept | application/json |
-  | Content-Type | application/json |
-  | Authorization | Bearer **TOKEN DARI LOGIN** |
+  # **GET CURRENT USER**
+
+  Returns the authenticated user from the JWT.
 }

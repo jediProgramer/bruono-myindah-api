@@ -1,0 +1,37 @@
+meta {
+  name: UPDATE
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/admin/posts/1
+  body: multipartForm
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+}
+
+body:multipart-form {
+  _method: PUT
+  title: Contoh Post Sosial Media (Updated)
+  category_id: 1
+  content: <p>Caption updated.</p>
+  source_url: https://www.youtube.com/shorts/aqz-KE-bpKQ
+  image: ~
+  metadata: ~
+}
+
+settings {
+  encodeUrl: true
+}
+
+docs {
+  Update post. Pakai `_method=PUT` untuk multipart form.
+
+  Lihat docs CREATE untuk daftar field. Field `image` opsional saat update (lama dipertahankan bila tidak diunggah baru). Kosongkan `source_url` untuk mengubah post jadi artikel biasa.
+
+  **`metadata` (sejak 2026-05-27):** kirim string JSON valid untuk extras per-kategori (tanaman: `nama_latin`, `hari_panen_min/max`, `musim_tanam`, dst). Lihat docs CREATE atau LIST ARTICLE BY CATEGORY untuk shape. Kosongkan / kirim `null` untuk membersihkan.
+}

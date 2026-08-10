@@ -1,0 +1,45 @@
+meta {
+  name: CREATE
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/admin/posts
+  body: multipartForm
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+}
+
+body:multipart-form {
+  title: Contoh Post Sosial Media
+  category_id: 1
+  content: <p>Caption opsional bila source_url diisi.</p>
+  source_url: https://www.tiktok.com/@gudangpeluru.45/video/7539789048500571400
+  image: ~
+  metadata: ~
+}
+
+settings {
+  encodeUrl: true
+}
+
+docs {
+  Multipart form. Buat post baru.
+
+  **Body (multipart):**
+  - `title` (string, required, unique)
+  - `category_id` (int, required)
+  - `content` (text) — required jika `source_url` kosong; optional jika ada `source_url`
+  - `source_url` (string, optional) — URL TikTok / YouTube (termasuk Shorts) / Instagram (post atau reel). Bila diisi, server otomatis isi `embed_provider` dan response berisi object `embed`.
+  - `image` (file) — required jika `source_url` kosong; optional jika ada `source_url` (JPG/PNG, max 2MB).
+  - `metadata` (JSON string, optional) — extras per-kategori. Untuk post Tanaman, isi dengan `{"nama_latin":"Capsicum frutescens","kategori_tanaman":"sayuran","musim_tanam":"sepanjang_tahun","hari_panen_min":75,"hari_panen_max":90,"tingkat_kesulitan":"sedang","kebutuhan_sinar":"penuh","kondisi_tumbuh":{"ph_min":5.5,"ph_max":6.8,"suhu_min":18,"suhu_max":30},"hama_umum":["thrips","kutu daun"]}`. Kirim sebagai *string JSON* di multipart body; server akan decode + simpan sebagai JSON. Null untuk post lain.
+
+  **Provider yang didukung untuk `source_url`:**
+  - `tiktok` — `https://www.tiktok.com/@user/video/<id>` → embed: `https://www.tiktok.com/embed/v2/<id>`
+  - `youtube` — `watch?v=<id>`, `youtu.be/<id>`, `shorts/<id>` → embed: `https://www.youtube.com/embed/<id>`
+  - `instagram` — `/p/<code>`, `/reel/<code>`, `/tv/<code>` → embed: `https://www.instagram.com/<type>/<code>/embed/`
+}

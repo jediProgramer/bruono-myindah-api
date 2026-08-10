@@ -1,0 +1,126 @@
+meta {
+  name: LIST CYCLES
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/admin/farm/cycles
+  body: none
+  auth: inherit
+}
+
+params:query {
+  user_id: ~
+  page: 1
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  Read-only audit of farmer padi cycles. Filter by `user_id` to inspect a single farmer.
+
+  **Query params:**
+  - `user_id` (int, optional)
+  - `page` (int, default 1)
+}
+
+example {
+  name: List Cycles: All
+
+  request: {
+    url: {{baseUrl}}/admin/farm/cycles
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+      Authorization: Bearer {{token}}
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "Farm cycles",
+          "data": {
+            "current_page": 1,
+            "per_page": 15,
+            "total": 24,
+            "last_page": 2,
+            "data": [
+              {
+                "id": 1,
+                "user": { "id": 5, "name": "Pak Joko" },
+                "template": "padi_jajar_legowo_super",
+                "transplant_date": "2026-05-01",
+                "estimated_harvest_date": "2026-07-30",
+                "notes": "Sawah blok A",
+                "activities_total": 45,
+                "activities_done": 8,
+                "created_at": "2026-05-01T08:00:00+07:00"
+              }
+            ]
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: List Cycles: Filter by user_id
+
+  request: {
+    url: {{baseUrl}}/admin/farm/cycles?user_id=5
+    method: GET
+    mode: none
+    headers: {
+      Accept: application/json
+      Authorization: Bearer {{token}}
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "Farm cycles",
+          "data": {
+            "current_page": 1,
+            "per_page": 15,
+            "total": 1,
+            "last_page": 1,
+            "data": [
+              { "id": 1, "user": { "id": 5, "name": "Pak Joko" }, "template": "padi_jajar_legowo_super", "transplant_date": "2026-05-01", "activities_total": 45, "activities_done": 8 }
+            ]
+          }
+        }
+      '''
+    }
+  }
+}

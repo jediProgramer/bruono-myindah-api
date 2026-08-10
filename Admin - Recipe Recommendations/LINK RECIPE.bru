@@ -1,0 +1,135 @@
+meta {
+  name: LINK RECIPE
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/admin/recipes/{{recipeId}}/recommendations
+  body: multipartForm
+  auth: inherit
+}
+
+vars:pre-request {
+  recipeId: 1
+}
+
+headers {
+  Accept: application/json
+}
+
+body:multipart-form {
+  region_slug: jabodetabek
+  weather_slug: panas-terik
+  meal_time_slug: siang
+  is_default: 1
+}
+
+settings {
+  encodeUrl: true
+}
+
+docs {
+  Adds a row to `recipe_recommendations`. Idempotent on (recipe, region, weather, meal_time).
+
+  **Path params:**
+  - `{recipeId}` (int, required)
+
+  **Body (multipart):**
+  - `region_slug` (string, required) — `jabodetabek`, `bandung-raya`, `gerbangkertosusilo`, `yogyakarta-magelang`
+  - `weather_slug` (string, required) — e.g. `panas-terik`, `berawan`, `hujan-ringan`
+  - `meal_time_slug` (string, required) — `sarapan`, `siang`, `cemilan`, `malam`
+  - `is_default` (bool 0|1, required) — `1` if this should be the headline pick for the combo
+}
+
+example {
+  name: Link: Success
+
+  request: {
+    url: {{baseUrl}}/admin/recipes/1/recommendations
+    method: POST
+    mode: multipartForm
+    headers: {
+      Accept: application/json
+      Authorization: Bearer {{token}}
+    }
+
+    body:multipart-form: {
+      region_slug: jabodetabek
+      weather_slug: panas-terik
+      meal_time_slug: siang
+      is_default: 1
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 201
+      text: Created
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "Recipe linked to recommendation",
+          "data": {
+            "id": 42,
+            "recipe_id": 1,
+            "region_slug": "jabodetabek",
+            "weather_slug": "panas-terik",
+            "meal_time_slug": "siang",
+            "is_default": true
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Link: Validation Error
+
+  request: {
+    url: {{baseUrl}}/admin/recipes/1/recommendations
+    method: POST
+    mode: multipartForm
+    headers: {
+      Accept: application/json
+      Authorization: Bearer {{token}}
+    }
+
+    body:multipart-form: {
+      region_slug: bali
+      meal_time_slug: brunch
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 422
+      text: Unprocessable Entity
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "region_slug":   ["The selected region slug is invalid."],
+          "weather_slug":  ["The weather slug field is required."],
+          "meal_time_slug":["The selected meal time slug is invalid."],
+          "is_default":    ["The is default field is required."]
+        }
+      '''
+    }
+  }
+}

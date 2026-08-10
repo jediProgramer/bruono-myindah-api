@@ -1,0 +1,150 @@
+meta {
+  name: UPDATE FCM TOKEN
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/mobileapps/users/me/fcm-token
+  body: multipartForm
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+}
+
+body:multipart-form {
+  fcm_token: dummy-fcm-token-from-flutter
+  device_type: android
+}
+
+settings {
+  encodeUrl: true
+}
+
+docs {
+  Called by Flutter on app start (and after every Firebase token rotation) to register the device for push notifications.
+
+  **Body (multipart):**
+  - `fcm_token` (string, required) — FCM registration token from Firebase
+  - `device_type` (string, required) — `android` (only platform supported)
+}
+
+example {
+  name: Update FCM Token: Success
+
+  request: {
+    url: {{baseUrl}}/mobileapps/users/me/fcm-token
+    method: POST
+    mode: multipartForm
+    headers: {
+      Accept: application/json
+      Authorization: Bearer {{token}}
+    }
+
+    body:multipart-form: {
+      fcm_token: cE2x9...firebase-token-string
+      device_type: android
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "success": true,
+          "message": "FCM token registered",
+          "data": {
+            "user_id": 5,
+            "device_type": "android",
+            "updated_at": "2026-05-21T08:11:32+07:00"
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Update FCM Token: Validation Error
+
+  request: {
+    url: {{baseUrl}}/mobileapps/users/me/fcm-token
+    method: POST
+    mode: multipartForm
+    headers: {
+      Accept: application/json
+      Authorization: Bearer {{token}}
+    }
+
+    body:multipart-form: {
+      fcm_token: ""
+      device_type: ios
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 422
+      text: Unprocessable Entity
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "fcm_token": ["The fcm token field is required."],
+          "device_type": ["The selected device type is invalid."]
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Update FCM Token: Unauthenticated
+
+  request: {
+    url: {{baseUrl}}/mobileapps/users/me/fcm-token
+    method: POST
+    mode: multipartForm
+    headers: {
+      Accept: application/json
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json; charset=utf-8
+    }
+
+    status: {
+      code: 401
+      text: Unauthorized
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "message": "Unauthenticated."
+        }
+      '''
+    }
+  }
+}
